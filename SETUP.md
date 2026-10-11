@@ -1,6 +1,6 @@
 # Galla — setup guide
 
-Galla is one web app that captains open from a personal link and add to their home screen. It tracks online time per app, trips, expenses, today's net earnings, ₹ per hour, and a weekly best-hours report. **Galla Kavach** adds a ride safety recorder (audio + front-camera video) with SOS and safety reports. It never reads or touches any ride-hailing app.
+Galla is a web app (`index.html`) wrapped in a small **Android app** (`android/`). Captains install the Android app; the same screens also work in Chrome from a personal link. It tracks online time per app, trips, expenses, today's net earnings against a daily goal, ₹ per hour, and a week-by-week report (Monday–Sunday, with earlier weeks). **Galla Kavach** adds a ride safety recorder (audio + front or back camera) with SOS and safety reports; in the Android app it keeps recording while Rapido or Maps is on screen. Galla never reads or touches any ride-hailing app.
 
 ## What's in the folder
 
@@ -9,7 +9,10 @@ Galla is one web app that captains open from a personal link and add to their ho
 | `index.html` | Yes | The whole app (Hindi, Marathi, Gujarati, English) |
 | `manifest.webmanifest` | Yes | Lets captains install Galla like an app, with the Galla icon |
 | `sw.js` | Yes | Lets the app open with no internet |
-| `assets/` | Yes | Icon, logo, hero and vehicle images |
+| `assets/` | Yes | Icon, logo, hero and vehicle images, sticker QR |
+| `kavach.html` | Yes | Rider notice page the sticker QR opens (fill in `CONTACT` before stickers go up) |
+| `android/` | Yes | The Android app; GitHub builds it automatically (section 5) |
+| `.github/workflows/android.yml` | Yes | The automatic Android build |
 | `firestore.rules` | No, paste into Firebase | Each phone can only see its own captain code |
 | `storage.rules` | No, paste into Firebase | Kavach: phones can only add encrypted recordings, never read or delete |
 | `lifecycle.json` | No, apply to the bucket | Kavach: deletes recordings after 7 days |
@@ -65,7 +68,9 @@ Kavach needs the paid **Blaze** plan, because file storage isn't on the free pla
 - **Video** (about 90 MB an hour) stays on the phone for 2 hours and then deletes itself. It uploads only when the captain files a report or presses SOS: the reported time ±10 minutes. After an SOS, video keeps uploading for the next 30 minutes too.
 - Storage rules allow a phone to **add** files under its own code only. Nobody can read, list, replace or delete them from an app.
 - **SOS:** starts recording, files an SOS report, and offers Call 112 plus an SMS of the location to the captain's 2 emergency numbers. Those numbers are kept on the phone only.
-- **Test-version limit:** a web page can't record while another app is on screen. While Rapido is open, recording may pause. The native Android app (next step) fixes this with a foreground service.
+- **In the Android app** recording runs as a background service with a permanent "Galla Kavach" notification (with **SOS** and **Stop** buttons). It keeps going while Rapido, Uber or Maps is open and with the screen off. It uploads through Firebase's web addresses as the same signed-in captain, so the same rules apply. **Don't switch on App Check enforcement for Firestore or Storage**: the Android recorder doesn't send App Check tokens yet. Keep App Check enforced for AI Logic only.
+- **In Chrome** (no Android app), recording only runs while Galla is on screen.
+- **Camera side:** Kavach settings → Which camera → Front (captain and rider) or Back (the road).
 
 #### When a captain files a safety report
 
@@ -90,7 +95,7 @@ node kavach-admin.mjs status <code> <reportId> shared   # what the captain sees:
 4. The app is at `https://littlegasp.com/galla/`. When Galla gets its own domain, add a `CNAME` file with that domain to this repo only. Captains' saved links will change once.
 5. Firebase → **Authentication → Settings → Authorized domains** → add `littlegasp.com`.
 
-**When you change a file later:** open `sw.js` and raise the number in `galla-v3` (to `galla-v4` and so on) (and so on), then upload. Otherwise phones keep showing the old cached version.
+**When you change a web file later:** open `sw.js` and raise the number in `galla-v4` (to `galla-v5` and so on), then upload. Otherwise phones keep showing the old cached version. The Android app shows the same web pages, so web changes reach it too, without a new APK.
 
 ## 4. Give each captain their link
 
@@ -101,7 +106,16 @@ node kavach-admin.mjs status <code> <reportId> shared   # what the captain sees:
 
 The first phone to open a code owns it. If a captain changes phones: in the Firestore console delete the document `captains/<code>` (only that document, not its `entries`). Their new phone claims it on the next open and keeps the history.
 
-## 5. Reading the pilot data
+## 5. The Android app
+
+- **Download:** https://github.com/littlegasp/galla/releases/latest/download/galla.apk. GitHub builds a new one each time anything under `android/` changes (about 6 minutes). Each build is listed under the repo's **Releases**.
+- **Install on a phone:** open the link in Chrome → download → open the file → allow "Install unknown apps" for Chrome when Android asks → Install. On first open, the captain types their code (or pastes their personal link).
+- **Updates:** installing a newer `galla.apk` over the old one keeps the captain's data. Web screens update by themselves, so a new APK is only needed when the recorder itself changes.
+- **Permissions it asks for:** microphone, camera, location and notifications, when Kavach is first started.
+- **Signing key:** builds are signed with a pilot key kept in `android/keystore` (public repo). That's fine for the pilot, but before the Play Store or a wide rollout, make a private key and add it as four repo secrets: `GALLA_KEYSTORE_BASE64` (the .jks file in base64), `GALLA_KEYSTORE_PASSWORD`, `GALLA_KEY_ALIAS`, `GALLA_KEY_PASSWORD`. The build then uses it automatically. Phones need one uninstall/reinstall when the key changes.
+- **Play Store later:** Google will ask you to justify background camera and microphone use (foreground service declaration) and needs a privacy policy URL (`kavach.html` is a start).
+
+## 6. Reading the pilot data
 
 Firestore → `captains` → each code → `entries`:
 
@@ -113,7 +127,7 @@ Firestore → `captains` → each code → `entries`:
 
 Kavach collections: `kavach` (one record per recorded minute: `kind`, `start`, `end`, `hash`, `size`, `lat`, `lng`, `expireAt`; the phone can create but never read) and `reports` (`cat`, `note`, `from`, `to`, `ts`, `status` new/held/shared/closed, plus `items` once held).
 
-Times are milliseconds since 1970. The captain document holds `profile` (vehicle, apps, language) and `online` (apps they are on right now).
+Times are milliseconds since 1970. The captain document holds `profile` (vehicle, apps, language, `goal` = daily net target in ₹, `kavachOk` = when the sticker notice was accepted) and `online` (apps they are on right now).
 
 Phase 0 gate: each week, count how many of the 10 codes logged trips on most days.
 
@@ -122,4 +136,9 @@ Phase 0 gate: each week, count how many of the 10 codes logged trips on most day
 - **Net earnings** = fares − expenses.
 - **₹ per hour** = net ÷ online time. If a captain is online on two apps at once, that time counts once.
 - **Per-app ₹/hour** = that app's fares ÷ time online on that app.
-- **Best-hours grid** (last 7 days) = fares ÷ online time in each 3-hour slot. Darker means more ₹ per hour; a slot needs at least 15 minutes online to show.
+- **Weeks** run Monday–Sunday. The arrows on the week report go back to any earlier week; this week and last week load instantly, older weeks load once when opened.
+- **Versus last week** compares this week so far with last week up to the same day and hour, so it's a fair race mid-week.
+- **Day by day** lists each day's net, trips, hours online and ₹/hour. With a daily goal set, days that met it show in green and the header counts them.
+- **Best-hours grid** (the chosen week) = fares ÷ online time in each 3-hour slot. Darker means more ₹ per hour; a slot needs at least 15 minutes online to show.
+- **Daily goal** (Settings): the home screen shows today's net against it as a progress bar.
+- **Settings** (gear icon on the home screen): language, vehicle, apps (add Uber or Ola any time), daily goal, Kavach settings, 10 pm screenshot reminder (Android app).

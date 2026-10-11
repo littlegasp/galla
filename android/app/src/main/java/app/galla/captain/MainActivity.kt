@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
         val title = TextView(this).apply {
             text = "Galla"; textSize = 40f; setTextColor(Color.parseColor("#FFC629")); typeface = Typeface.DEFAULT_BOLD; gravity = Gravity.CENTER
         }
-        val hint = TextView(this).apply {
+        val help = TextView(this).apply {
             text = "अपना Galla कोड या लिंक डालें\nEnter your Galla code or paste your link"
             textSize = 17f; setTextColor(Color.WHITE); gravity = Gravity.CENTER; setPadding(0, pad / 2, 0, pad)
         }
@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
             showWeb(code)
         }
         val lp = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = pad / 2 }
-        box.addView(title); box.addView(hint); box.addView(input, lp); box.addView(go, LinearLayout.LayoutParams(lp).apply { topMargin = pad })
+        box.addView(title); box.addView(help); box.addView(input, lp); box.addView(go, LinearLayout.LayoutParams(lp).apply { topMargin = pad })
         setContentView(box)
     }
 
