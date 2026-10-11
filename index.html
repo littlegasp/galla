@@ -1,0 +1,1923 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121212">
+<meta name="description" content="Galla — हर राइड का पक्का हिसाब। ऑटो, बाइक और कैब कैप्टन के लिए कमाई का हिसाब।">
+<title>Galla — हर राइड का पक्का हिसाब</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="assets/icon-96.png">
+<link rel="apple-touch-icon" href="assets/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@600;700;800&family=Anek+Gujarati:wght@600;800&family=Hind:wght@400;500;600&family=Hind+Vadodara:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --y: #FFC629;          /* auto yellow */
+    --ink: #121212;        /* road black */
+    --cream: #F6F2E7;
+    --card: #FFFFFF;
+    --line: #E4DDCB;
+    --line2: #CFC8B4;
+    --muted: #5A5547;
+    --soft: #EFE9DA;
+    --good: #1C6B35;
+    --bad: #B3261E;
+    --rec: #E53935;        /* kavach recording red */
+    --fd: 'Anek Devanagari', 'Anek Gujarati', sans-serif;
+    --fb: 'Hind', 'Hind Vadodara', system-ui, sans-serif;
+  }
+  html[lang="gu"] { --fd: 'Anek Gujarati', 'Anek Devanagari', sans-serif; --fb: 'Hind Vadodara', 'Hind', system-ui, sans-serif; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--cream); color: var(--ink); }
+  body { font-family: var(--fb); font-size: 16px; line-height: 1.4; }
+  button, select, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  .app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+  .hidden { display: none !important; }
+  .fd { font-family: var(--fd); }
+
+  /* ---------- shared pieces ---------- */
+  .band { background: var(--ink); color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand img { width: 42px; height: 42px; border-radius: 11px; display: block; }
+  .brand .name { font-family: var(--fd); font-weight: 800; font-size: 26px; line-height: 1; color: var(--y); }
+  .brand .sub { font-size: 13px; color: #D9D3C3; margin-top: 3px; }
+  .topline { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .langpill {
+    appearance: none; -webkit-appearance: none; height: 40px; padding: 0 30px 0 14px; border-radius: 20px;
+    border: 2px solid var(--y); background: transparent; color: var(--y); font-weight: 600; font-size: 15px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--y) 50%), linear-gradient(135deg, var(--y) 50%, transparent 50%);
+    background-position: right 14px center, right 9px center; background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  .langpill option { color: #121212; }
+  .road { height: 10px; margin: 16px -16px 0; background-image: repeating-linear-gradient(90deg, var(--y) 0 24px, var(--ink) 24px 48px); animation: road 1.2s linear infinite; }
+  @keyframes road { from { background-position: 0 0 } to { background-position: -48px 0 } }
+  .wrap { padding: 0 16px; }
+  .h3 { font-family: var(--fd); font-weight: 700; font-size: 19px; margin: 18px 0 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .h3 small { font-family: var(--fb); font-weight: 500; font-size: 13px; color: var(--muted); }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .chip {
+    min-height: 48px; border-radius: 12px; border: 2px solid var(--line2); background: var(--card); color: var(--ink);
+    font-weight: 600; font-size: 15px; padding: 6px 10px; line-height: 1.2;
+  }
+  .chip.on { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .chip.yon { border-color: var(--ink); background: var(--y); color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; height: 60px; border-radius: 16px; border: 2px solid var(--ink);
+    font-family: var(--fd); font-weight: 800; font-size: 22px; text-decoration: none; width: 100%;
+  }
+  .btn.y { background: var(--y); color: var(--ink); box-shadow: 0 4px 0 var(--ink); }
+  .btn.k { background: var(--ink); color: var(--y); }
+  .btn.k2 { background: var(--ink); color: #fff; box-shadow: 0 4px 0 var(--muted); }
+  .btn:active { transform: translateY(2px); box-shadow: none; }
+  .bar { height: 12px; border-radius: 6px; background: var(--soft); overflow: hidden; }
+  .bar > i { display: block; height: 100%; border-radius: 6px; background: #8A8370; transform-origin: left; animation: grow 1.1s cubic-bezier(.2,.8,.2,1) both; }
+  .bar > i.top { background: var(--ink); }
+  @keyframes grow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+  .muted { color: var(--muted); }
+  .center { min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; gap: 16px; }
+  .center img { width: 96px; height: 96px; border-radius: 24px; }
+
+  /* ---------- setup ---------- */
+  .hero { width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; border-radius: 14px; display: block; margin-top: 12px; }
+  .headline { font-family: var(--fd); font-weight: 800; font-size: 26px; line-height: 1.2; margin-top: 12px; }
+  .headline span { color: var(--y); }
+  .veh { border-radius: 16px; border: 2px solid var(--line2); background: var(--card); padding: 8px 6px; text-align: center; font-weight: 700; }
+  .veh img { width: 100%; max-width: 96px; aspect-ratio: 1; object-fit: cover; border-radius: 12px; display: block; margin: 0 auto 4px; }
+  .veh.sel { border: 3px solid var(--ink); background: var(--y); box-shadow: 0 4px 0 var(--ink); }
+  .veh.sel img { animation: bob 2.6s ease-in-out infinite; }
+  @keyframes bob { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+  .err { color: var(--bad); font-size: 14px; min-height: 20px; margin-top: 8px; font-weight: 600; }
+  .fine { font-size: 12px; color: var(--muted); text-align: center; margin-top: 8px; }
+
+  /* ---------- home ---------- */
+  .netrow { display: flex; align-items: flex-end; justify-content: space-between; margin-top: 16px; gap: 8px; }
+  .netlabel { font-size: 15px; color: #D9D3C3; }
+  .net { font-family: var(--fd); font-weight: 800; font-size: 58px; line-height: 1.02; letter-spacing: -0.02em; }
+  .net.neg { color: #FF8A80; }
+  .pills { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .pill-y { background: var(--y); color: var(--ink); border-radius: 10px; padding: 4px 10px; font-size: 15px; font-weight: 700; }
+  .pill-o { border: 1.5px solid #5A5547; border-radius: 10px; padding: 3px 10px; font-size: 15px; }
+  .galla { position: relative; width: 84px; height: 96px; flex: none; }
+  .galla img { position: absolute; left: 0; bottom: 0; width: 84px; height: 84px; border-radius: 20px; }
+  .coin {
+    position: absolute; left: 29px; top: 18px; width: 26px; height: 26px; border-radius: 13px; background: var(--y);
+    border: 2px solid var(--ink); box-shadow: 0 0 0 2px var(--y); display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 15px; color: var(--ink); z-index: 2; animation: drop 2.4s cubic-bezier(.5,0,.5,1) infinite;
+  }
+  @keyframes drop { 0% { transform: translateY(-46px) rotate(-20deg); opacity: 0 } 15% { opacity: 1 } 55% { transform: translateY(6px) rotate(0); opacity: 1 } 70% { transform: translateY(14px) scale(.6); opacity: 0 } 100% { opacity: 0 } }
+  .tile { background: var(--card); border: 2px solid var(--ink); border-radius: 14px; padding: 10px 12px; }
+  .tile .k { font-size: 13px; color: var(--muted); }
+  .tile .v { font-family: var(--fd); font-weight: 800; font-size: 24px; }
+  .appbtn {
+    text-align: left; min-height: 62px; border-radius: 14px; border: 2px solid var(--line2); background: var(--card);
+    padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+  }
+  .appbtn .dot { width: 12px; height: 12px; border-radius: 6px; background: var(--line2); flex: none; }
+  .appbtn .nm { font-size: 17px; font-weight: 600; line-height: 1.2; display: block; }
+  .appbtn .st { font-size: 13px; color: var(--muted); display: block; }
+  .appbtn.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .appbtn.on .dot { background: var(--y); animation: pulse 1.6s infinite; }
+  .appbtn.on .st { color: var(--y); }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,198,41,.8) } 70% { box-shadow: 0 0 0 10px rgba(255,198,41,0) } 100% { box-shadow: 0 0 0 0 rgba(255,198,41,0) } }
+  .barrow { display: grid; grid-template-columns: 92px 1fr 56px; gap: 8px; align-items: center; font-size: 15px; }
+  .barrow b { text-align: right; }
+  .weeklink {
+    margin-top: 12px; display: flex; justify-content: space-between; align-items: center; min-height: 48px; padding: 0 14px;
+    border-radius: 14px; background: var(--y); border: 2px solid var(--ink); font-weight: 700; font-size: 15px; width: 100%;
+    position: relative; overflow: hidden;
+  }
+  .weeklink::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 60px; background: rgba(255,255,255,.45); transform: skewX(-20deg); animation: shine 3.2s ease-in-out infinite; }
+  @keyframes shine { 0% { transform: translateX(-120%) skewX(-20deg) } 60%,100% { transform: translateX(800%) skewX(-20deg) } }
+  ul.list { list-style: none; margin: 0; padding: 0; }
+  ul.list li { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--line); }
+  ul.list li:first-child { border-top: 0; }
+  .li-t { font-size: 13px; color: var(--muted); width: 44px; flex: none; }
+  .li-m { flex: 1; min-width: 0; }
+  .li-m b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .li-m span { font-size: 13px; color: var(--muted); }
+  .li-a { font-weight: 700; }
+  .li-a.plus { color: var(--good); }
+  .li-a.minus { color: var(--bad); }
+  .li-x { border: 0; background: transparent; color: var(--muted); font-size: 22px; width: 44px; height: 44px; border-radius: 10px; }
+  .li-x:active { background: #FDECEA; color: var(--bad); }
+  .foot { text-align: center; font-size: 13px; color: var(--muted); margin: 18px 0 0; padding-bottom: 110px; }
+  .foot button { background: none; border: 0; color: var(--ink); text-decoration: underline; font-weight: 600; padding: 6px; }
+  .actions {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--cream); border-top: 2px solid var(--line);
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom));
+  }
+  .actions > div { max-width: 448px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
+
+  /* ---------- week ---------- */
+  .backbtn { width: 44px; height: 44px; border-radius: 22px; border: 2px solid var(--y); background: transparent; display: flex; align-items: center; justify-content: center; flex: none; }
+  .heat { display: grid; grid-template-columns: 40px repeat(5, minmax(0, 1fr)); gap: 4px; font-size: 12px; color: var(--muted); text-align: center; }
+  .heat .d { text-align: left; align-self: center; }
+  .heat .c { height: 28px; border-radius: 6px; background: var(--soft); animation: pop .4s ease-out both; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .heat .l0 { background: #F3EEE2; }
+  .heat .l1 { background: #FFE9A6; color: var(--ink); }
+  .heat .l2 { background: var(--y); color: var(--ink); }
+  .heat .l3 { background: var(--ink); color: var(--y); }
+  @keyframes pop { from { transform: scale(.4); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+  .legend { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+  .legend i { width: 18px; height: 10px; border-radius: 3px; display: inline-block; }
+  .tip { margin-top: 12px; background: var(--y); border: 2px solid var(--ink); border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; animation: glow 2s ease-in-out infinite; }
+  @keyframes glow { 0%,100% { box-shadow: 0 0 0 0 rgba(255,198,41,0) } 50% { box-shadow: 0 0 0 6px rgba(255,198,41,.45) } }
+
+  /* ---------- sheets ---------- */
+  .scrim { position: fixed; inset: 0; background: rgba(18,18,18,.6); z-index: 20; display: none; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 21; display: none; max-height: 96vh; overflow: auto;
+    background: var(--cream); border-radius: 24px 24px 0 0; padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+  }
+  .scrim.open, .sheet.open { display: block; }
+  .sheet.open { animation: up .35s cubic-bezier(.2,.8,.2,1); }
+  @keyframes up { from { transform: translateY(40px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+  .sheet-in { max-width: 448px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .grab { width: 44px; height: 5px; border-radius: 3px; background: var(--line2); align-self: center; }
+  .shead { display: flex; justify-content: space-between; align-items: center; }
+  .shead .t { display: flex; align-items: center; gap: 10px; font-family: var(--fd); font-weight: 800; font-size: 24px; }
+  .shead img { width: 34px; height: 34px; border-radius: 9px; }
+  .xbtn { width: 44px; height: 44px; border-radius: 22px; border: 2px solid var(--ink); background: transparent; display: flex; align-items: center; justify-content: center; }
+  .amount { border: 2px solid var(--ink); border-radius: 18px; padding: 8px 18px 10px; box-shadow: 0 4px 0 var(--ink); }
+  .amount.y { background: var(--y); }
+  .amount.w { background: var(--card); }
+  .amount .lbl { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; }
+  .amount .val { font-family: var(--fd); font-weight: 800; font-size: 54px; line-height: 1.05; display: flex; align-items: center; }
+  .amount.w .val { color: var(--bad); }
+  .caret { display: inline-block; width: 3px; height: 44px; background: var(--ink); margin-left: 4px; animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0 } }
+  .kmrow { display: flex; align-items: center; justify-content: space-between; border: 2px dashed var(--muted); border-radius: 12px; padding: 6px 12px; font-weight: 600; background: transparent; width: 100%; text-align: left; }
+  .kmrow.active { border: 2px solid var(--ink); background: var(--card); }
+  .kmrow .kv { font-family: var(--fd); font-weight: 800; font-size: 22px; }
+  .keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .key { height: 54px; border-radius: 14px; border: 0; background: var(--card); font-family: var(--fd); font-weight: 700; font-size: 28px; color: var(--ink); }
+  .key.alt { background: var(--soft); font-size: 22px; }
+  .key:active { transform: translateY(2px); background: var(--soft); }
+  .serr { color: var(--bad); font-size: 14px; font-weight: 600; min-height: 18px; text-align: center; }
+
+  /* ---------- done overlay ---------- */
+  .done { position: fixed; inset: 0; z-index: 40; background: rgba(18,18,18,.94); color: #fff; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; }
+  .done.open { display: flex; animation: fade .25s ease-out; }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+  .done .stage { position: relative; width: 160px; height: 200px; }
+  .done .big-coin { position: absolute; left: 55px; top: 30px; width: 50px; height: 50px; border-radius: 25px; background: var(--y); border: 3px solid var(--ink); box-shadow: 0 0 0 3px var(--y); display: flex; align-items: center; justify-content: center; font-family: var(--fd); font-weight: 800; font-size: 26px; color: var(--ink); z-index: 2; animation: drop2 .9s cubic-bezier(.5,0,.5,1) forwards; }
+  @keyframes drop2 { 0% { transform: translateY(-120px) rotate(-30deg) } 70% { transform: translateY(10px) rotate(0) } 85% { transform: translateY(0) } 100% { transform: translateY(24px) scale(.5); opacity: 0 } }
+  .done .stage img { position: absolute; left: 10px; bottom: 0; width: 140px; height: 140px; border-radius: 32px; animation: shake .3s ease-in-out .8s 2; }
+  @keyframes shake { 0%,100% { transform: rotate(0) } 25% { transform: rotate(-6deg) } 75% { transform: rotate(6deg) } }
+  .done .tick { width: 110px; height: 110px; border-radius: 55px; background: var(--y); display: flex; align-items: center; justify-content: center; }
+  .done .tick path { stroke-dasharray: 40; animation: tick .5s ease-out .15s both; }
+  @keyframes tick { from { stroke-dashoffset: 40 } to { stroke-dashoffset: 0 } }
+  .done h2 { font-family: var(--fd); font-weight: 800; font-size: 32px; margin: 18px 0 0; color: var(--y); }
+  .done p { margin: 6px 0 0; color: #D9D3C3; font-size: 16px; }
+  .banner { margin: 10px 16px 0; border-radius: 12px; padding: 8px 12px; font-size: 14px; font-weight: 600; }
+  .banner.demo { background: #FFE9A6; color: var(--ink); }
+  .banner.off { background: #3A3115; color: var(--y); }
+  .toast { position: fixed; left: 50%; bottom: calc(100px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--y); padding: 10px 18px; border-radius: 999px; font-weight: 700; z-index: 50; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+
+  /* ---------- screenshot import ---------- */
+  .how { font-size: 15px; }
+  .how ol { margin: 6px 0 0; padding-left: 20px; }
+  .how li { margin: 4px 0; }
+  .linkbtn { background: none; border: 0; color: var(--ink); text-decoration: underline; font-weight: 600; padding: 8px; font-size: 15px; }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .thumbs img { width: 56px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid var(--ink); }
+  .reading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 0; text-align: center; }
+  .scan { position: relative; width: 96px; height: 96px; }
+  .scan img { width: 96px; height: 96px; border-radius: 22px; }
+  .scan::after { content: ""; position: absolute; left: -6px; right: -6px; height: 4px; background: var(--ink); border-radius: 2px; box-shadow: 0 0 0 3px var(--y); animation: scan 1.4s ease-in-out infinite alternate; }
+  @keyframes scan { from { top: 4px } to { top: 88px } }
+  .check { border-radius: 12px; padding: 10px 12px; font-weight: 600; font-size: 15px; display: flex; gap: 8px; align-items: flex-start; }
+  .check.ok { background: #E3F4E8; color: var(--good); }
+  .check.warn { background: #FFF1D6; color: #7A4B00; }
+  .rv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .rv-head b { font-family: var(--fd); font-size: 20px; }
+  .rv-tot { font-family: var(--fd); font-weight: 800; font-size: 28px; }
+  .stepper { display: grid; grid-template-columns: 52px 1fr 52px; gap: 8px; align-items: center; margin-top: 8px; }
+  .stepper button { height: 52px; border-radius: 14px; border: 2px solid var(--ink); background: var(--card); font-size: 26px; font-weight: 800; }
+  .stepper div { text-align: center; font-family: var(--fd); font-weight: 800; font-size: 26px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; background: var(--soft); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+  .actions .imp { display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* ---------- kavach ---------- */
+  .kvlink {
+    margin-top: 12px; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 8px 14px; width: 100%; text-align: left;
+    border-radius: 14px; background: var(--ink); color: #fff; border: 2px solid var(--ink);
+  }
+  .kvlink b { font-family: var(--fd); font-size: 18px; color: var(--y); display: block; line-height: 1.15; }
+  .kvlink .s { font-size: 13px; color: #D9D3C3; display: block; }
+  .kvlink.rec { background: #3A0F0C; border-color: var(--rec); }
+  .kvlink.rec b { color: #fff; }
+  .recdot { width: 12px; height: 12px; border-radius: 6px; background: var(--rec); flex: none; animation: recp 1.2s infinite; }
+  @keyframes recp { 0% { box-shadow: 0 0 0 0 rgba(229,57,53,.85) } 70% { box-shadow: 0 0 0 10px rgba(229,57,53,0) } 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0) } }
+  .kvhero { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 18px; }
+  .kvbtn {
+    width: 164px; height: 164px; border-radius: 82px; border: 4px solid var(--y); background: var(--ink); color: var(--y); flex: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px;
+    font-family: var(--fd); font-weight: 800; font-size: 19px; line-height: 1.15; box-shadow: 0 0 0 8px rgba(255,198,41,.16);
+  }
+  .kvbtn.rec { border-color: var(--rec); background: #3A0F0C; color: #fff; animation: recring 1.6s infinite; }
+  @keyframes recring { 0% { box-shadow: 0 0 0 0 rgba(229,57,53,.7) } 70% { box-shadow: 0 0 0 20px rgba(229,57,53,0) } 100% { box-shadow: 0 0 0 0 rgba(229,57,53,0) } }
+  .kvtime { font-family: var(--fd); font-weight: 800; font-size: 26px; letter-spacing: .03em; }
+  .kvcam { width: 108px; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden; border: 2px solid var(--rec); background: #000; flex: none; position: relative; }
+  .kvcam video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
+  .kvcam span { position: absolute; left: 6px; top: 6px; background: var(--rec); color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 0 5px; }
+  .kvstate { text-align: center; color: #D9D3C3; font-size: 14px; margin-top: 10px; }
+  .kvrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .kvrow:first-child { border-top: 0; }
+  .kvrow .ic { width: 32px; height: 32px; border-radius: 9px; background: var(--soft); display: flex; align-items: center; justify-content: center; flex: none; }
+  .kvrow .tx { flex: 1; min-width: 0; }
+  .kvrow .tx b { display: block; }
+  .kvrow .tx span { font-size: 13px; color: var(--muted); }
+  .btn.sos { background: var(--rec); color: #fff; box-shadow: 0 4px 0 var(--ink); }
+  .lock { border-left: 6px solid var(--y); }
+  .field { width: 100%; border: 2px solid var(--line2); border-radius: 12px; padding: 10px 12px; background: var(--card); font-size: 17px; }
+  .field:focus { outline: none; border-color: var(--ink); }
+  textarea.field { min-height: 76px; resize: vertical; }
+  .cbx { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; font-size: 15px; background: var(--card); border: 2px solid var(--ink); border-radius: 12px; padding: 12px; cursor: pointer; }
+  .cbx input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: var(--ink); }
+  .sos-big { display: flex; align-items: center; justify-content: center; gap: 10px; height: 64px; border-radius: 16px; font-family: var(--fd); font-weight: 800; font-size: 22px; text-decoration: none; border: 2px solid var(--ink); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= LOADING / MESSAGE ================= -->
+  <section id="scrLoading" class="center">
+    <img src="assets/icon-192.png" alt="Galla">
+    <div class="fd" style="font-weight:800;font-size:28px">Galla</div>
+  </section>
+  <section id="scrMessage" class="center hidden">
+    <img src="assets/icon-192.png" alt="Galla">
+    <p id="msgText" style="font-size:18px;font-weight:600;max-width:320px"></p>
+  </section>
+
+  <!-- ================= SETUP ================= -->
+  <section id="scrSetup" class="hidden">
+    <div class="band">
+      <div class="topline">
+        <div class="brand"><img src="assets/icon-96.png" alt=""><div class="name">Galla</div></div>
+      </div>
+      <img class="hero" src="assets/hero.jpg" alt="" width="960" height="540">
+      <div class="headline"><span data-t="hello"></span> <span data-t="tagline"></span></div>
+      <div class="road"></div>
+    </div>
+    <div class="wrap">
+      <div class="h3" style="margin-top:14px">1. <span data-t="langQ" style="flex:1;margin-left:6px"></span></div>
+      <div class="grid4" id="setLang"></div>
+      <div class="h3">2. <span data-t="vehicleQ" style="flex:1;margin-left:6px"></span></div>
+      <div class="grid3" id="setVeh"></div>
+      <div class="h3">3. <span data-t="appsQ" style="flex:1;margin-left:6px"></span><small data-t="pickMany"></small></div>
+      <div class="grid3" id="setApps"></div>
+      <div class="err" id="setErr"></div>
+      <button class="btn y" id="setSave"><span data-t="start"></span> →</button>
+      <div class="fine" data-t="neverRead"></div>
+      <div style="height:24px"></div>
+    </div>
+  </section>
+
+  <!-- ================= HOME ================= -->
+  <section id="scrMain" class="hidden">
+    <div class="band">
+      <div class="topline">
+        <div class="brand">
+          <img src="assets/icon-96.png" alt="Galla">
+          <div><div class="name">Galla</div><div class="sub" id="todayDate"></div></div>
+        </div>
+        <select class="langpill" id="langSel" aria-label="Language">
+          <option value="hi">हिंदी</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="en">English</option>
+        </select>
+      </div>
+      <div class="netrow">
+        <div style="min-width:0">
+          <div class="netlabel" data-t="net"></div>
+          <div class="net" id="vNet">₹0</div>
+          <div class="pills">
+            <div class="pill-y" id="vPerHour">—</div>
+            <div class="pill-o" id="vOnline">—</div>
+          </div>
+        </div>
+        <div class="galla" aria-hidden="true"><div class="coin">₹</div><img src="assets/icon-192.png" alt=""></div>
+      </div>
+      <div class="road"></div>
+    </div>
+    <div id="bannerBox"></div>
+    <div class="wrap">
+      <button class="kvlink" id="goKavach">
+        <span id="kvLinkIc"></span>
+        <span style="flex:1;min-width:0"><b data-t="kvTitle"></b><span class="s" id="kvLinkSub"></span></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="grid2" style="margin-top:14px">
+        <div class="tile"><div class="k"><span data-t="fares"></span> · <span id="vTrips">0</span> <span data-t="trips"></span></div><div class="v" style="color:var(--good)" id="vFares">₹0</div></div>
+        <div class="tile"><div class="k" data-t="expenses"></div><div class="v" style="color:var(--bad)" id="vExp">₹0</div></div>
+      </div>
+
+      <div class="h3"><span data-t="onlineNow"></span><small data-t="onlineHint"></small></div>
+      <div class="grid2" id="onlineBox"></div>
+
+      <div class="h3"><span data-t="whichApp"></span><small data-t="perHourFare"></small></div>
+      <div class="card" id="todayApps"></div>
+
+      <button class="weeklink" id="goWeek"><span style="position:relative" data-t="seeWeek"></span>
+        <svg style="position:relative" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+
+      <div class="h3"><span data-t="recent"></span></div>
+      <div class="card"><ul class="list" id="recentList"></ul></div>
+
+      <div style="display:flex;justify-content:center;margin-top:8px"><button class="linkbtn" id="btnTrip" data-t="manualTrip"></button></div>
+      <div class="foot"><span id="codeLabel"></span> · <button id="editSetup" data-t="editSetup"></button></div>
+    </div>
+    <div class="actions"><div>
+      <button class="btn y imp" id="btnImp"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-t="importBtn"></span></button>
+      <button class="btn k2" id="btnExp" data-t="addExpense"></button>
+    </div></div>
+  </section>
+
+  <!-- ================= WEEK ================= -->
+  <section id="scrWeek" class="hidden">
+    <div class="band">
+      <div class="topline">
+        <div class="brand">
+          <button class="backbtn" id="weekBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div><div class="name" data-t="thisWeek"></div><div class="sub" id="weekRange"></div></div>
+        </div>
+        <img src="assets/icon-96.png" alt="" style="width:40px;height:40px;border-radius:10px">
+      </div>
+      <div style="margin-top:14px">
+        <div class="netlabel" data-t="weekNet"></div>
+        <div class="net" id="wNet" style="color:var(--y);font-size:48px">₹0</div>
+        <div style="font-size:15px;margin-top:4px" id="wSub"></div>
+      </div>
+      <div class="road"></div>
+    </div>
+    <div class="wrap">
+      <div class="h3"><span data-t="whenBest"></span><small data-t="perHourFare"></small></div>
+      <div class="card">
+        <div class="heat" id="heat"></div>
+        <div class="legend"><span data-t="less"></span><i style="background:#F3EEE2"></i><i style="background:#FFE9A6"></i><i style="background:#FFC629"></i><i style="background:#121212"></i><span data-t="more"></span></div>
+      </div>
+      <div class="tip" id="tipBox">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <div style="font-size:15px;line-height:1.35" id="tipText"></div>
+      </div>
+      <div class="h3"><span data-t="byAppWeek"></span><small data-t="perHourFare"></small></div>
+      <div class="card" id="weekApps"></div>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+
+  <!-- ================= KAVACH ================= -->
+  <section id="scrKavach" class="hidden">
+    <div class="band">
+      <div class="topline">
+        <div class="brand">
+          <button class="backbtn" id="kvBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div><div class="name" data-t="kvTitle"></div><div class="sub" data-t="kvSub"></div></div>
+        </div>
+        <img src="assets/icon-96.png" alt="" style="width:40px;height:40px;border-radius:10px">
+      </div>
+      <div class="kvhero">
+        <button class="kvbtn" id="kvToggle"></button>
+        <div class="kvcam hidden" id="kvCam"><video id="kvPreview" muted playsinline autoplay></video><span>REC</span></div>
+      </div>
+      <div class="kvstate" id="kvState"></div>
+      <div class="road"></div>
+    </div>
+    <div id="kvBanner"></div>
+    <div class="wrap">
+      <div class="grid2" style="margin-top:14px">
+        <button class="btn sos" id="kvSosBtn">SOS</button>
+        <button class="btn y" id="kvRepBtn" style="font-size:18px;line-height:1.1" data-t="kvReport"></button>
+      </div>
+      <div class="card" style="margin-top:14px" id="kvRows"></div>
+      <div class="check warn hidden" style="margin-top:12px" id="kvKeepOpen" data-t="kvKeepOpen"></div>
+      <div class="card lock" style="margin-top:12px"><b data-t="kvPrivacyT"></b><div style="font-size:14px;margin-top:4px" data-t="kvPrivacy"></div></div>
+
+      <div class="h3"><span data-t="kvSettings"></span></div>
+      <div class="card">
+        <div class="kvrow">
+          <div class="tx"><b data-t="kvVideoToggle"></b><span data-t="kvVideoHint"></span></div>
+          <button class="chip" id="kvVideoBtn" style="min-width:72px"></button>
+        </div>
+        <div class="kvrow">
+          <div class="tx"><b data-t="kvContacts"></b><span id="kvContactsTxt"></span></div>
+          <button class="chip" id="kvContactsBtn" style="min-width:72px" data-t="kvEdit"></button>
+        </div>
+      </div>
+
+      <div class="h3"><span data-t="kvReports"></span></div>
+      <div class="card"><ul class="list" id="kvRepList"></ul></div>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= SHEETS ================= -->
+<div class="scrim" id="scrim"></div>
+
+<div class="sheet" id="sheetTrip" role="dialog" aria-modal="true" aria-labelledby="tripTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="tripTitle" data-t="newTrip"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="grid3" id="tripApps"></div>
+    <div class="amount y"><div class="lbl"><span data-t="fareQ"></span></div><div class="val">₹<span id="tripAmt">0</span><span class="caret" id="tripCaret"></span></div></div>
+    <div class="grid2" id="paySeg"></div>
+    <button class="kmrow" id="kmRow"><span data-t="tripKm"></span><span class="kv" id="kmVal">—</span></button>
+    <div class="keys" id="tripKeys"></div>
+    <div class="serr" id="tripErr"></div>
+    <button class="btn k" id="tripSave"></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheetExp" role="dialog" aria-modal="true" aria-labelledby="expTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="expTitle" data-t="newExpense"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="grid2" id="expCats"></div>
+    <div class="amount w"><div class="lbl"><span data-t="amountQ"></span></div><div class="val">₹<span id="expAmt">0</span><span class="caret"></span></div></div>
+    <div class="keys" id="expKeys"></div>
+    <div class="serr" id="expErr"></div>
+    <button class="btn k" id="expSave"></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheetImp" role="dialog" aria-modal="true" aria-labelledby="impTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="impTitle" data-t="importTitle"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+
+    <div id="impPick">
+      <div class="card how"><b data-t="howTitle"></b>
+        <ol><li data-t="how1"></li><li data-t="how2"></li><li data-t="how3"></li></ol>
+      </div>
+      <label class="btn y" for="impFile" style="margin-top:12px;cursor:pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span data-t="pickShots"></span></label>
+      <input type="file" id="impFile" accept="image/*" multiple hidden>
+      <div class="fine" style="margin-top:10px" data-t="shotPrivacy"></div>
+      <div style="display:flex;justify-content:center"><button class="linkbtn" id="impManual" data-t="orManual"></button></div>
+    </div>
+
+    <div id="impReading" class="hidden">
+      <div class="reading">
+        <div class="scan"><img src="assets/icon-192.png" alt=""></div>
+        <div class="fd" style="font-weight:800;font-size:22px" id="readTxt"></div>
+        <div class="thumbs" id="impThumbs"></div>
+      </div>
+    </div>
+
+    <div id="impReview" class="hidden">
+      <div class="card">
+        <div class="rv-head"><b id="rvApp"></b><span class="muted" id="rvDate"></span></div>
+        <div class="rv-head" style="margin-top:4px"><span id="rvCount"></span><span class="rv-tot" id="rvTotal"></span></div>
+        <div id="rvCheck" style="margin-top:10px"></div>
+      </div>
+      <div class="card" style="margin-top:12px"><ul class="list" id="rvList"></ul></div>
+      <div class="card" style="margin-top:12px" id="rvHours">
+        <b data-t="hoursQ"></b>
+        <div class="muted" style="font-size:13px" id="rvHoursHint"></div>
+        <div class="stepper"><button type="button" id="hrMinus" aria-label="−">−</button><div id="hrVal"></div><button type="button" id="hrPlus" aria-label="+">+</button></div>
+      </div>
+      <label class="linkbtn" for="impFile" style="display:block;text-align:center;cursor:pointer;margin-top:4px" data-t="addMoreShots"></label>
+      <div class="serr" id="impErr"></div>
+      <button class="btn k" id="impSave" style="margin-top:6px"></button>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="sheetKvIntro" role="dialog" aria-modal="true" aria-labelledby="kvIntroTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="kvIntroTitle" data-t="kvIntroT"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="card how"><ol style="margin:0"><li data-t="kvIntro1"></li><li data-t="kvIntro2"></li><li data-t="kvIntro3"></li><li data-t="kvIntro4"></li></ol></div>
+    <label class="cbx"><input type="checkbox" id="kvSticker"><span data-t="kvSticker"></span></label>
+    <div class="serr" id="kvIntroErr"></div>
+    <button class="btn k" id="kvAgree" data-t="kvAgree"></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheetReport" role="dialog" aria-modal="true" aria-labelledby="repTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="repTitle" data-t="kvRepT"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <b data-t="kvRepWhat"></b>
+    <div class="grid2" id="repCats"></div>
+    <b data-t="kvRepWhen"></b>
+    <div class="grid2" id="repWins"></div>
+    <input type="time" class="field hidden" id="repTime" aria-label="Time">
+    <textarea class="field" id="repNote" maxlength="500" data-ph="kvRepNote"></textarea>
+    <div class="serr" id="repErr"></div>
+    <button class="btn k" id="repSend" data-t="kvRepSend"></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheetSos" role="dialog" aria-modal="true" aria-labelledby="sosTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><span class="recdot"></span><span id="sosTitle">SOS</span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <a class="sos-big" href="tel:112" style="background:var(--rec);color:#fff"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg><span data-t="kvSosCall"></span></a>
+    <a class="sos-big" id="sosSms" href="#" style="background:var(--y);color:var(--ink);box-shadow:0 4px 0 var(--ink)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-t="kvSosSms"></span></a>
+    <div class="muted" style="font-size:13px;text-align:center" id="sosLoc"></div>
+    <div class="check ok" id="sosNote" data-t="kvSosNote"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheetContacts" role="dialog" aria-modal="true" aria-labelledby="ctTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="ctTitle" data-t="kvContacts"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="muted" style="font-size:14px" data-t="kvContactsHint"></div>
+    <input type="tel" class="field" id="ct1" inputmode="tel" maxlength="17" placeholder="98XXXXXXXX" autocomplete="off">
+    <input type="tel" class="field" id="ct2" inputmode="tel" maxlength="17" placeholder="98XXXXXXXX" autocomplete="off">
+    <div class="serr" id="ctErr"></div>
+    <button class="btn k" id="ctSave" data-t="kvSaveContacts"></button>
+  </div>
+</div>
+
+<div class="done" id="doneTrip" role="status">
+  <div class="stage"><div class="big-coin">₹</div><img src="assets/icon-192.png" alt=""></div>
+  <h2 id="doneTripH"></h2><p id="doneTripP"></p>
+</div>
+<div class="done" id="doneExp" role="status">
+  <div class="tick"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+  <h2 id="doneExpH" style="color:#fff"></h2><p id="doneExpP"></p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+/* =========================================================
+   1. CONFIG — paste your Firebase web config here.
+   While apiKey starts with "PASTE", Galla runs in DEMO mode
+   (data stays in this browser only).
+   ========================================================= */
+const FIREBASE_CONFIG = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "your-project.firebaseapp.com",
+  projectId: "your-project",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:0000000000000000"
+};
+const SUPPORT_PHONE = "";          // e.g. "+919800000000" — shown when a link is blocked
+const FIREBASE_VERSION = "13.0.0";
+const AI_MODEL = "gemini-3.8-flash";       // model that reads screenshots (Firebase AI Logic)
+const RECAPTCHA_SITE_KEY = "";             // App Check (reCAPTCHA Enterprise) — required for AI Logic from 2 Nov 2026
+// Galla Kavach: paste the public key printed by `node kavach-admin.mjs keys` (tools folder).
+// Recordings are locked with it on the phone; only the private key on your own computer can open them.
+const KAVACH_PUBLIC_KEY = null;
+const DEMO = FIREBASE_CONFIG.apiKey.startsWith("PASTE");
+
+/* =========================================================
+   2. TEXT — Hindi, Marathi, Gujarati, English
+   ========================================================= */
+const T = {
+  tagline:    { hi: "हर राइड का पक्का हिसाब।", mr: "प्रत्येक राईडचा पक्का हिशोब.", gu: "દરેક રાઇડનો પાક્કો હિસાબ.", en: "Every ride, properly counted." },
+  hello:      { hi: "नमस्ते कैप्टन!", mr: "नमस्कार कॅप्टन!", gu: "નમસ્તે કૅપ્ટન!", en: "Hello Captain!" },
+  langQ:      { hi: "भाषा · Language", mr: "भाषा · Language", gu: "ભાષા · Language", en: "Language" },
+  vehicleQ:   { hi: "आपकी गाड़ी", mr: "तुमची गाडी", gu: "તમારું વાહન", en: "Your vehicle" },
+  appsQ:      { hi: "किन ऐप पर चलाते हैं?", mr: "कोणत्या अ‍ॅपवर चालवता?", gu: "કઈ એપ પર ચલાવો છો?", en: "Which apps do you drive on?" },
+  pickMany:   { hi: "एक से ज़्यादा चुनें", mr: "एकापेक्षा जास्त निवडा", gu: "એકથી વધુ પસંદ કરો", en: "pick all that apply" },
+  bike:       { hi: "बाइक", mr: "बाईक", gu: "બાઇક", en: "Bike" },
+  auto:       { hi: "ऑटो", mr: "रिक्षा", gu: "રિક્ષા", en: "Auto" },
+  cab:        { hi: "कैब", mr: "कॅब", gu: "કેબ", en: "Cab" },
+  other:      { hi: "अन्य", mr: "इतर", gu: "અન્ય", en: "Other" },
+  start:      { hi: "शुरू करें", mr: "सुरू करा", gu: "શરૂ કરો", en: "Start" },
+  neverRead:  { hi: "Galla किसी भी राइड ऐप को पढ़ता या छूता नहीं। आपका ID सुरक्षित।", mr: "Galla कोणतेही राईड अ‍ॅप वाचत किंवा वापरत नाही. तुमचा ID सुरक्षित.", gu: "Galla કોઈ રાઇડ એપ વાંચતું કે અડતું નથી. તમારું ID સુરક્ષિત.", en: "Galla never reads or touches any ride app. Your ID stays safe." },
+  pickVehicle:{ hi: "अपनी गाड़ी चुनें", mr: "तुमची गाडी निवडा", gu: "તમારું વાહન પસંદ કરો", en: "Pick your vehicle" },
+  pickApps:   { hi: "कम से कम एक ऐप चुनें", mr: "किमान एक अ‍ॅप निवडा", gu: "ઓછામાં ઓછી એક એપ પસંદ કરો", en: "Pick at least one app" },
+  net:        { hi: "आज की शुद्ध कमाई", mr: "आजची निव्वळ कमाई", gu: "આજની ચોખ્ખી કમાણી", en: "Today's net earnings" },
+  perHr:      { hi: "/ घंटा", mr: "/ तास", gu: "/ કલાક", en: "/ hour" },
+  onlineWord: { hi: "ऑनलाइन", mr: "ऑनलाइन", gu: "ઑનલાઇન", en: "online" },
+  fares:      { hi: "किराया", mr: "भाडे", gu: "ભાડું", en: "Fares" },
+  trips:      { hi: "राइड", mr: "राईड", gu: "રાઇડ", en: "trips" },
+  expenses:   { hi: "खर्च", mr: "खर्च", gu: "ખર્ચ", en: "Expenses" },
+  onlineNow:  { hi: "अभी ऑनलाइन", mr: "आता ऑनलाइन", gu: "હમણાં ઑનલાઇન", en: "Online now" },
+  onlineHint: { hi: "चालू/बंद पर टैप करें", mr: "चालू/बंद करताना टॅप करा", gu: "ચાલુ/બંધ પર ટેપ કરો", en: "tap when you switch on/off" },
+  since:      { hi: "से चालू", mr: "पासून चालू", gu: "થી ચાલુ", en: "on" },
+  offTap:     { hi: "बंद · टैप करें", mr: "बंद · टॅप करा", gu: "બંધ · ટેપ કરો", en: "Off · tap" },
+  whichApp:   { hi: "आज कौन-सा ऐप बेहतर", mr: "आज कोणते अ‍ॅप चांगले", gu: "આજે કઈ એપ સારી", en: "Best app today" },
+  perHourFare:{ hi: "किराया ₹ / घंटा", mr: "भाडे ₹ / तास", gu: "ભાડું ₹ / કલાક", en: "fare ₹ / hour" },
+  seeWeek:    { hi: "इस हफ़्ते का सबसे अच्छा समय देखें", mr: "या आठवड्याची सर्वोत्तम वेळ पहा", gu: "આ અઠવાડિયાનો શ્રેષ્ઠ સમય જુઓ", en: "See this week's best hours" },
+  recent:     { hi: "आज की एंट्री", mr: "आजच्या नोंदी", gu: "આજની એન્ટ્રી", en: "Today's entries" },
+  none:       { hi: "आज अभी तक कुछ नहीं लिखा", mr: "आज अजून काही नोंद नाही", gu: "આજે હજુ કંઈ નોંધ્યું નથી", en: "Nothing logged yet today" },
+  noneApps:   { hi: "स्क्रीनशॉट डालें या ऐप ऑन करें — यहाँ तुलना दिखेगी", mr: "स्क्रीनशॉट टाका किंवा अ‍ॅप चालू करा — इथे तुलना दिसेल", gu: "સ્ક્રીનશૉટ નાખો અથવા એપ ચાલુ કરો — અહીં સરખામણી દેખાશે", en: "Add screenshots or switch an app on to compare here" },
+  addTrip:    { hi: "+ राइड", mr: "+ राईड", gu: "+ રાઇડ", en: "+ Trip" },
+  addExpense: { hi: "+ खर्च", mr: "+ खर्च", gu: "+ ખર્ચ", en: "+ Expense" },
+  editSetup:  { hi: "सेटअप बदलें", mr: "सेटअप बदला", gu: "સેટઅપ બદલો", en: "Edit setup" },
+  yourCode:   { hi: "आपका कोड", mr: "तुमचा कोड", gu: "તમારો કોડ", en: "Your code" },
+  newTrip:    { hi: "नई राइड", mr: "नवीन राईड", gu: "નવી રાઇડ", en: "New trip" },
+  fareQ:      { hi: "मिला किराया", mr: "मिळालेले भाडे", gu: "મળેલું ભાડું", en: "Fare received" },
+  cash:       { hi: "नकद", mr: "रोख", gu: "રોકડ", en: "Cash" },
+  upi:        { hi: "ऑनलाइन / UPI", mr: "ऑनलाइन / UPI", gu: "ઑનલાઇન / UPI", en: "Online / UPI" },
+  tripKm:     { hi: "राइड किमी (वैकल्पिक)", mr: "राईड किमी (ऐच्छिक)", gu: "રાઇડ કિમી (વૈકલ્પિક)", en: "Trip km (optional)" },
+  saveTrip:   { hi: "गल्ले में डालें", mr: "गल्ल्यात टाका", gu: "ગલ્લામાં નાખો", en: "Add to Galla" },
+  inGalla:    { hi: "गल्ले में!", mr: "गल्ल्यात!", gu: "ગલ્લામાં!", en: "in the Galla!" },
+  todayTotal: { hi: "आज की शुद्ध कमाई", mr: "आजची निव्वळ कमाई", gu: "આજની ચોખ્ખી કમાણી", en: "Today's net" },
+  newExpense: { hi: "नया खर्च", mr: "नवीन खर्च", gu: "નવો ખર્ચ", en: "New expense" },
+  amountQ:    { hi: "कितना खर्च हुआ", mr: "किती खर्च झाला", gu: "કેટલો ખર્ચ થયો", en: "How much did you spend" },
+  saveExp:    { hi: "खर्च सेव करें", mr: "खर्च सेव्ह करा", gu: "ખર્ચ સેવ કરો", en: "Save expense" },
+  expSaved:   { hi: "खर्च लिखा गया", mr: "खर्च नोंदवला", gu: "ખર્ચ નોંધાયો", en: "expense saved" },
+  fuel:       { hi: "पेट्रोल / CNG / चार्जिंग", mr: "पेट्रोल / CNG / चार्जिंग", gu: "પેટ્રોલ / CNG / ચાર્જિંગ", en: "Fuel / CNG / charging" },
+  service:    { hi: "सर्विस / मरम्मत", mr: "सर्व्हिस / दुरुस्ती", gu: "સર્વિસ / રિપેર", en: "Service / repair" },
+  fees:       { hi: "ऐप फ़ीस / प्लान", mr: "अ‍ॅप फी / प्लॅन", gu: "એપ ફી / પ્લાન", en: "App fee / plan" },
+  enterFare:  { hi: "1 से 5000 के बीच किराया डालें", mr: "1 ते 5000 दरम्यान भाडे टाका", gu: "1 થી 5000 વચ્ચે ભાડું નાખો", en: "Enter a fare between 1 and 5000" },
+  enterAmt:   { hi: "1 से 50000 के बीच रकम डालें", mr: "1 ते 50000 दरम्यान रक्कम टाका", gu: "1 થી 50000 વચ્ચે રકમ નાખો", en: "Enter an amount between 1 and 50000" },
+  pickApp:    { hi: "पहले ऐप चुनें", mr: "आधी अ‍ॅप निवडा", gu: "પહેલાં એપ પસંદ કરો", en: "Pick the app first" },
+  pickCat:    { hi: "खर्च का प्रकार चुनें", mr: "खर्चाचा प्रकार निवडा", gu: "ખર્ચનો પ્રકાર પસંદ કરો", en: "Pick what it was for" },
+  badKm:      { hi: "किमी 0 से 300 के बीच हो", mr: "किमी 0 ते 300 दरम्यान असावे", gu: "કિમી 0 થી 300 વચ્ચે હોવું જોઈએ", en: "Km must be 0–300" },
+  confirmDel: { hi: "यह एंट्री हटाएं?", mr: "ही नोंद हटवायची?", gu: "આ એન્ટ્રી કાઢી નાખવી?", en: "Delete this entry?" },
+  deleted:    { hi: "हटा दिया", mr: "हटवले", gu: "કાઢી નાખ્યું", en: "Deleted" },
+  sessionWord:{ hi: "ऑनलाइन रहे", mr: "ऑनलाइन होतो", gu: "ઑનલાઇન રહ્યા", en: "online" },
+  thisWeek:   { hi: "इस हफ़्ते", mr: "हा आठवडा", gu: "આ અઠવાડિયું", en: "This week" },
+  weekNet:    { hi: "पिछले 7 दिनों की शुद्ध कमाई", mr: "मागील 7 दिवसांची निव्वळ कमाई", gu: "છેલ્લા 7 દિવસની ચોખ્ખી કમાણી", en: "Net earnings, last 7 days" },
+  avg:        { hi: "औसत", mr: "सरासरी", gu: "સરેરાશ", en: "average" },
+  hoursOnline:{ hi: "घंटे ऑनलाइन", mr: "तास ऑनलाइन", gu: "કલાક ઑનલાઇન", en: "hours online" },
+  whenBest:   { hi: "किस समय सबसे ज़्यादा कमाई", mr: "कोणत्या वेळी सर्वाधिक कमाई", gu: "કયા સમયે સૌથી વધુ કમાણી", en: "When you earn most" },
+  less:       { hi: "कम", mr: "कमी", gu: "ઓછું", en: "less" },
+  more:       { hi: "ज़्यादा", mr: "जास्त", gu: "વધુ", en: "more" },
+  byAppWeek:  { hi: "ऐप के हिसाब से", mr: "अ‍ॅपनुसार", gu: "એપ પ્રમાણે", en: "By app" },
+  bestTip:    { hi: "{slot} बजे सबसे अच्छा — ₹{v}/घंटा।", mr: "{slot} वाजता सर्वोत्तम — ₹{v}/तास.", gu: "{slot} વાગ્યે શ્રેષ્ઠ — ₹{v}/કલાક.", en: "{slot} is your best time — ₹{v}/hr." },
+  bestApp:    { hi: " सबसे अच्छा ऐप: {app}।", mr: " सर्वोत्तम अ‍ॅप: {app}.", gu: " શ્રેષ્ઠ એપ: {app}.", en: " Best app: {app}." },
+  noTip:      { hi: "2–3 दिन ऐप ऑन/ऑफ और राइड लिखते रहें — फिर यहाँ आपका सबसे अच्छा समय दिखेगा।", mr: "2–3 दिवस अ‍ॅप चालू/बंद आणि राईड नोंदवत रहा — मग इथे तुमची सर्वोत्तम वेळ दिसेल.", gu: "2–3 દિવસ એપ ચાલુ/બંધ અને રાઇડ લખતા રહો — પછી અહીં તમારો શ્રેષ્ઠ સમય દેખાશે.", en: "Keep switching apps on/off and logging trips for 2–3 days — your best time will show here." },
+  hShort:     { hi: "घं", mr: "ता", gu: "ક", en: "h" },
+  mShort:     { hi: "मि", mr: "मि", gu: "મિ", en: "m" },
+  noCode:     { hi: "Galla आपकी पर्सनल लिंक से खुलता है। जिसने लिंक दी, उनसे पूछें।", mr: "Galla तुमच्या वैयक्तिक लिंकने उघडते. ज्यांनी लिंक दिली त्यांना विचारा.", gu: "Galla તમારી પર્સનલ લિંકથી ખૂલે છે. જેમણે લિંક આપી તેમને પૂછો.", en: "Galla opens from your personal link. Ask the person who shared it." },
+  claimed:    { hi: "यह लिंक दूसरे फ़ोन पर चालू है। नया फ़ोन है तो हमसे संपर्क करें।", mr: "ही लिंक दुसऱ्या फोनवर चालू आहे. नवीन फोन असल्यास संपर्क करा.", gu: "આ લિંક બીજા ફોન પર ચાલુ છે. નવો ફોન હોય તો સંપર્ક કરો.", en: "This link is already used on another phone. Changed phones? Contact us." },
+  firstNet:   { hi: "पहली बार खोलने के लिए इंटरनेट चाहिए।", mr: "पहिल्यांदा उघडण्यासाठी इंटरनेट हवे.", gu: "પહેલી વાર ખોલવા ઇન્ટરનેટ જોઈએ.", en: "You need internet the first time you open Galla." },
+  errSave:    { hi: "सेव नहीं हुआ, फिर कोशिश करें", mr: "सेव्ह झाले नाही, पुन्हा प्रयत्न करा", gu: "સેવ ન થયું, ફરી પ્રયાસ કરો", en: "Couldn't save, try again" },
+  demo:       { hi: "डेमो मोड — डेटा सिर्फ़ इस फ़ोन में", mr: "डेमो मोड — डेटा फक्त या फोनमध्ये", gu: "ડેમો મોડ — ડેટા ફક્ત આ ફોનમાં", en: "Demo mode — data stays on this phone only" },
+  offline:    { hi: "नेट नहीं है — फ़ोन में सेव हो रहा है, बाद में सिंक होगा", mr: "नेट नाही — फोनमध्ये सेव्ह होत आहे, नंतर सिंक होईल", gu: "નેટ નથી — ફોનમાં સેવ થાય છે, પછી સિંક થશે", en: "No internet — saving on the phone, will sync later" },
+  importBtn:  { hi: "स्क्रीनशॉट डालें", mr: "स्क्रीनशॉट टाका", gu: "સ્ક્રીનશૉટ નાખો", en: "Add screenshots" },
+  manualTrip: { hi: "+ हाथ से राइड लिखें", mr: "+ हाताने राईड लिहा", gu: "+ હાથથી રાઇડ લખો", en: "+ Type a trip by hand" },
+  importTitle:{ hi: "स्क्रीनशॉट से राइड", mr: "स्क्रीनशॉटमधून राईड", gu: "સ્ક્રીનશૉટથી રાઇડ", en: "Trips from screenshots" },
+  howTitle:   { hi: "दिन में एक बार, 1 मिनट:", mr: "दिवसातून एकदा, 1 मिनिट:", gu: "દિવસમાં એક વાર, 1 મિનિટ:", en: "Once a day, 1 minute:" },
+  how1:       { hi: "Rapido खोलें → All Orders → Day", mr: "Rapido उघडा → All Orders → Day", gu: "Rapido ખોલો → All Orders → Day", en: "Open Rapido → All Orders → Day" },
+  how2:       { hi: "ऊपर से नीचे तक स्क्रॉल करते हुए स्क्रीनशॉट लें (2–4 काफ़ी हैं)", mr: "वरून खालीपर्यंत स्क्रोल करत स्क्रीनशॉट घ्या (2–4 पुरेसे)", gu: "ઉપરથી નીચે સુધી સ્ક્રોલ કરતાં સ્ક્રીનશૉટ લો (2–4 પૂરતા)", en: "Scroll top to bottom taking screenshots (2–4 is enough)" },
+  how3:       { hi: "सभी स्क्रीनशॉट यहाँ एक साथ चुनें — Uber/Ola के भी", mr: "सगळे स्क्रीनशॉट इथे एकत्र निवडा — Uber/Ola चेही", gu: "બધા સ્ક્રીનશૉટ અહીં એકસાથે પસંદ કરો — Uber/Ola ના પણ", en: "Pick them all here at once — Uber/Ola too" },
+  pickShots:  { hi: "स्क्रीनशॉट चुनें", mr: "स्क्रीनशॉट निवडा", gu: "સ્ક્રીનશૉટ પસંદ કરો", en: "Choose screenshots" },
+  shotPrivacy:{ hi: "फ़ोटो सेव नहीं होती। सिर्फ़ समय, किराया और पिकअप इलाका रखा जाता है — ग्राहक का पता कभी नहीं।", mr: "फोटो सेव्ह होत नाही. फक्त वेळ, भाडे आणि पिकअप भाग ठेवला जातो — ग्राहकाचा पत्ता कधीच नाही.", gu: "ફોટો સેવ થતો નથી. ફક્ત સમય, ભાડું અને પિકઅપ વિસ્તાર રાખવામાં આવે છે — ગ્રાહકનું સરનામું ક્યારેય નહીં.", en: "Photos are never saved. Only time, fare and pickup area are kept — never a customer's address." },
+  orManual:   { hi: "या हाथ से राइड लिखें", mr: "किंवा हाताने राईड लिहा", gu: "અથવા હાથથી રાઇડ લખો", en: "or type a trip by hand" },
+  reading:    { hi: "पढ़ रहे हैं… {n} स्क्रीनशॉट", mr: "वाचत आहोत… {n} स्क्रीनशॉट", gu: "વાંચી રહ્યા છીએ… {n} સ્ક્રીનશૉટ", en: "Reading {n} screenshot(s)…" },
+  found:      { hi: "{n} राइड मिलीं", mr: "{n} राईड सापडल्या", gu: "{n} રાઇડ મળી", en: "{n} trips found" },
+  matchOk:    { hi: "{app} के कुल {t} से पूरा मेल खाता है", mr: "{app} च्या एकूण {t} शी पूर्ण जुळते", gu: "{app} ના કુલ {t} સાથે પૂરું મળે છે", en: "Matches {app}'s total of {t} exactly" },
+  matchLess:  { hi: "{app} का कुल {t} है — {d} कम। कोई स्क्रीनशॉट छूटा? नीचे और जोड़ें।", mr: "{app} चे एकूण {t} आहे — {d} कमी. स्क्रीनशॉट राहिला? खाली अजून जोडा.", gu: "{app} નો કુલ {t} છે — {d} ઓછું. કોઈ સ્ક્રીનશૉટ રહી ગયો? નીચે વધુ ઉમેરો.", en: "{app} shows {t} — {d} short. Missed a screenshot? Add more below." },
+  noSummary:  { hi: "ऊपर वाला कुल-जोड़ (Completed Orders) भी स्क्रीनशॉट में लें, तो हम मिलान कर देंगे।", mr: "वरचा एकूण (Completed Orders) भागही स्क्रीनशॉटमध्ये घ्या, म्हणजे जुळवणी होईल.", gu: "ઉપરનો કુલ (Completed Orders) ભાગ પણ સ્ક્રીનશૉટમાં લો, તો મેળવણી થશે.", en: "Include the top summary (Completed Orders) to check the total." },
+  dupSkipped: { hi: "{n} राइड पहले से थीं — दोबारा नहीं जोड़ीं", mr: "{n} राईड आधीच होत्या — पुन्हा जोडल्या नाहीत", gu: "{n} રાઇડ પહેલેથી હતી — ફરી નથી ઉમેરી", en: "{n} trips were already saved — skipped" },
+  missed:     { hi: "छूटे ऑर्डर: {n}", mr: "सुटलेल्या ऑर्डर: {n}", gu: "છૂટેલા ઑર્ડર: {n}", en: "Missed orders: {n}" },
+  hoursQ:     { hi: "उस दिन कितने घंटे ऑनलाइन रहे?", mr: "त्या दिवशी किती तास ऑनलाइन होतात?", gu: "એ દિવસે કેટલા કલાક ઑનલાઇન રહ્યા?", en: "How long were you online that day?" },
+  hoursHint:  { hi: "राइड के समय से अंदाज़ा: {r}। ज़रूरत हो तो बदलें।", mr: "राईडच्या वेळेवरून अंदाज: {r}. गरज असल्यास बदला.", gu: "રાઇડના સમય પરથી અંદાજ: {r}. જરૂર હોય તો બદલો.", en: "Estimated from trip times: {r}. Adjust if needed." },
+  hoursHave:  { hi: "ऑनलाइन समय पहले से दर्ज है (ऐप चालू/बंद से)।", mr: "ऑनलाइन वेळ आधीच नोंदलेली आहे (अ‍ॅप चालू/बंद वरून).", gu: "ઑનલાઇન સમય પહેલેથી નોંધાયેલો છે (એપ ચાલુ/બંધ પરથી).", en: "Online time is already recorded (from the on/off toggles)." },
+  addMoreShots:{ hi: "+ और स्क्रीनशॉट जोड़ें", mr: "+ अजून स्क्रीनशॉट जोडा", gu: "+ વધુ સ્ક્રીનશૉટ ઉમેરો", en: "+ Add more screenshots" },
+  saveImp:    { hi: "{n} राइड गल्ले में डालें", mr: "{n} राईड गल्ल्यात टाका", gu: "{n} રાઇડ ગલ્લામાં નાખો", en: "Add {n} trips to Galla" },
+  impDone:    { hi: "{n} राइड गल्ले में!", mr: "{n} राईड गल्ल्यात!", gu: "{n} રાઇડ ગલ્લામાં!", en: "{n} trips in the Galla!" },
+  noTrips:    { hi: "इन स्क्रीनशॉट में कोई राइड नहीं मिली। All Orders → Day वाली स्क्रीन डालें।", mr: "या स्क्रीनशॉटमध्ये राईड सापडल्या नाहीत. All Orders → Day स्क्रीन टाका.", gu: "આ સ્ક્રીનશૉટમાં કોઈ રાઇડ મળી નહીં. All Orders → Day સ્ક્રીન નાખો.", en: "No trips found in these screenshots. Use the All Orders → Day screen." },
+  readFail:   { hi: "पढ़ नहीं पाए — इंटरनेट चेक करें और फिर कोशिश करें", mr: "वाचता आले नाही — इंटरनेट तपासा आणि पुन्हा प्रयत्न करा", gu: "વાંચી શક્યા નહીં — ઇન્ટરનેટ તપાસો અને ફરી પ્રયાસ કરો", en: "Couldn't read them — check internet and try again" },
+  demoShot:   { hi: "डेमो: असली पढ़ाई Firebase जुड़ने पर होगी। अभी नमूना राइड दिखा रहे हैं।", mr: "डेमो: खरे वाचन Firebase जोडल्यावर होईल. आता नमुना राईड दाखवत आहोत.", gu: "ડેમો: સાચું વાંચન Firebase જોડાયા પછી થશે. હમણાં નમૂના રાઇડ બતાવીએ છીએ.", en: "Demo: real reading starts once Firebase is connected. Showing sample trips." },
+  shotTag:    { hi: "स्क्रीनशॉट", mr: "स्क्रीनशॉट", gu: "સ્ક્રીનશૉટ", en: "screenshot" },
+  slot0:      { hi: "सुबह", mr: "सकाळी", gu: "સવારે", en: "morning" },
+  slot1:      { hi: "दोपहर", mr: "दुपारी", gu: "બપોરે", en: "late morning" },
+  slot2:      { hi: "दोपहर", mr: "दुपारी", gu: "બપોરે", en: "afternoon" },
+  slot3:      { hi: "शाम", mr: "संध्याकाळी", gu: "સાંજે", en: "evening" },
+  slot4:      { hi: "रात", mr: "रात्री", gu: "રાત્રે", en: "night" },
+  longOnline: { hi: "12 घंटे से ज़्यादा — बंद करना भूले?", mr: "12 तासांपेक्षा जास्त — बंद करायला विसरलात?", gu: "12 કલાકથી વધુ — બંધ કરવાનું ભૂલ્યા?", en: "Over 12 h — forgot to switch off?" },
+
+  /* Galla Kavach */
+  kvTitle:    { hi: "Galla कवच", mr: "Galla कवच", gu: "Galla કવચ", en: "Galla Kavach" },
+  kvSub:      { hi: "राइड सुरक्षा रिकॉर्डर", mr: "राईड सुरक्षा रेकॉर्डर", gu: "રાઇડ સુરક્ષા રેકોર્ડર", en: "Ride safety recorder" },
+  kvHomeOff:  { hi: "बंद · सवारी बैठने से पहले चालू करें", mr: "बंद · प्रवासी बसण्याआधी चालू करा", gu: "બંધ · સવારી બેસે તે પહેલાં ચાલુ કરો", en: "Off · switch on before the rider gets on" },
+  kvHomeOn:   { hi: "रिकॉर्डिंग चालू · {d}", mr: "रेकॉर्डिंग चालू · {d}", gu: "રેકોર્ડિંગ ચાલુ · {d}", en: "Recording · {d}" },
+  kvStart:    { hi: "कवच चालू करें", mr: "कवच चालू करा", gu: "કવચ ચાલુ કરો", en: "Start Kavach" },
+  kvStop:     { hi: "रोकें", mr: "थांबवा", gu: "રોકો", en: "Stop" },
+  kvStarting: { hi: "शुरू हो रहा है…", mr: "सुरू होत आहे…", gu: "શરૂ થાય છે…", en: "Starting…" },
+  kvOffState: { hi: "आवाज़ + सामने का कैमरा · समय और लोकेशन के साथ", mr: "आवाज + समोरचा कॅमेरा · वेळ आणि लोकेशनसह", gu: "અવાજ + આગળનો કૅમેરા · સમય અને લોકેશન સાથે", en: "Audio + front camera · with time and location" },
+  kvOffStateA:{ hi: "सिर्फ़ आवाज़ · समय और लोकेशन के साथ", mr: "फक्त आवाज · वेळ आणि लोकेशनसह", gu: "ફક્ત અવાજ · સમય અને લોકેશન સાથે", en: "Audio only · with time and location" },
+  kvOnState:  { hi: "फ़ोन होल्डर में, स्क्रीन आपकी तरफ़ रखें", mr: "फोन होल्डरमध्ये, स्क्रीन तुमच्याकडे ठेवा", gu: "ફોન હોલ્ડરમાં, સ્ક્રીન તમારી તરફ રાખો", en: "Keep the phone in its holder, screen facing you" },
+  kvAudioOk:  { hi: "आवाज़ — Galla सर्वर पर लॉक", mr: "आवाज — Galla सर्व्हरवर लॉक", gu: "અવાજ — Galla સર્વર પર લૉક", en: "Audio — locked on Galla's server" },
+  kvAudioOkS: { hi: "हर मिनट अपने-आप जाती है · आज {mb} MB", mr: "दर मिनिटाला आपोआप जाते · आज {mb} MB", gu: "દર મિનિટે આપમેળે જાય છે · આજે {mb} MB", en: "Sent every minute · {mb} MB today" },
+  kvAudioWait:{ hi: "{n} मिनट नेट मिलते ही जाएगी", mr: "{n} मिनिटे नेट मिळताच जातील", gu: "{n} મિનિટ નેટ મળતાં જ જશે", en: "{n} min will send when internet is back" },
+  kvVideoOk:  { hi: "वीडियो — फ़ोन में लॉक", mr: "व्हिडिओ — फोनमध्ये लॉक", gu: "વીડિયો — ફોનમાં લૉક", en: "Video — locked on this phone" },
+  kvVideoOkS: { hi: "पिछले 2 घंटे रहते हैं · रिपोर्ट पर ही सर्वर पर जाता है ({m} मिनट रखा है)", mr: "मागील 2 तास राहतात · रिपोर्ट केल्यावरच सर्व्हरवर जातो ({m} मिनिटे ठेवले)", gu: "છેલ્લા 2 કલાક રહે છે · રિપોર્ટ કરો ત્યારે જ સર્વર પર જાય ({m} મિનિટ રાખ્યા)", en: "Last 2 hours kept · goes to the server only with a report ({m} min held)" },
+  kvVideoSend:{ hi: "रिपोर्ट का वीडियो भेज रहे हैं · {n} बाकी", mr: "रिपोर्टचा व्हिडिओ पाठवत आहोत · {n} बाकी", gu: "રિપોર્ટનો વીડિયો મોકલીએ છીએ · {n} બાકી", en: "Sending report video · {n} left" },
+  kvVideoOff: { hi: "वीडियो बंद है", mr: "व्हिडिओ बंद आहे", gu: "વીડિયો બંધ છે", en: "Video is off" },
+  kvGpsOk:    { hi: "लोकेशन और समय हर मिनट दर्ज", mr: "लोकेशन आणि वेळ दर मिनिटाला नोंद", gu: "લોકેશન અને સમય દર મિનિટે નોંધ", en: "Location and time stamped every minute" },
+  kvGpsNo:    { hi: "लोकेशन बंद — फ़ोन में लोकेशन चालू करें", mr: "लोकेशन बंद — फोनमध्ये लोकेशन चालू करा", gu: "લોકેશન બંધ — ફોનમાં લોકેશન ચાલુ કરો", en: "Location off — turn on location on your phone" },
+  kvSealS:    { hi: "हर टुकड़े पर डिजिटल सील (हैश) — कोई बदल नहीं सकता", mr: "प्रत्येक तुकड्यावर डिजिटल सील (हॅश) — कोणी बदलू शकत नाही", gu: "દરેક ટુકડા પર ડિજિટલ સીલ (હૅશ) — કોઈ બદલી ન શકે", en: "Every piece is digitally sealed (hash) — can't be altered" },
+  kvKeepOpen: { hi: "टेस्ट वर्ज़न: रिकॉर्डिंग तभी चलती है जब Galla स्क्रीन पर खुला हो। दूसरा ऐप खोलने पर रुक सकती है। पूरा ऐप जल्द आएगा।", mr: "टेस्ट व्हर्जन: Galla स्क्रीनवर उघडे असतानाच रेकॉर्डिंग चालते. दुसरे अ‍ॅप उघडल्यास थांबू शकते. पूर्ण अ‍ॅप लवकरच.", gu: "ટેસ્ટ વર્ઝન: Galla સ્ક્રીન પર ખુલ્લું હોય ત્યારે જ રેકોર્ડિંગ ચાલે છે. બીજી એપ ખોલવાથી અટકી શકે. પૂરી એપ જલ્દી આવશે.", en: "Test version: recording runs only while Galla is open on screen. Opening another app may pause it. The full app is coming soon." },
+  kvPaused:   { hi: "Galla पीछे था — {d} रिकॉर्डिंग रुकी हो सकती है", mr: "Galla मागे होते — {d} रेकॉर्डिंग थांबले असू शकते", gu: "Galla પાછળ હતું — {d} રેકોર્ડિંગ અટક્યું હોઈ શકે", en: "Galla was in the background — up to {d} may not have recorded" },
+  kvPrivacyT: { hi: "कोई नहीं देख सकता — आप भी नहीं", mr: "कोणीही पाहू शकत नाही — तुम्हीही नाही", gu: "કોઈ જોઈ શકતું નથી — તમે પણ નહીં", en: "Nobody can watch it — not even you" },
+  kvPrivacy:  { hi: "रिकॉर्डिंग लॉक रहती है। सिर्फ़ आपकी सेफ़्टी रिपोर्ट पर, जाँच के बाद, पुलिस या आपके वकील को दी जाती है। बाकी सब 7 दिन बाद अपने-आप डिलीट।", mr: "रेकॉर्डिंग लॉक राहते. फक्त तुमच्या सेफ्टी रिपोर्टवर, तपासणीनंतर, पोलीस किंवा तुमच्या वकिलांना दिली जाते. बाकी सर्व 7 दिवसांनी आपोआप डिलीट.", gu: "રેકોર્ડિંગ લૉક રહે છે. ફક્ત તમારા સેફ્ટી રિપોર્ટ પર, તપાસ પછી, પોલીસ અથવા તમારા વકીલને અપાય છે. બાકી બધું 7 દિવસ પછી આપમેળે ડિલીટ.", en: "Recordings stay locked. Only after your safety report, and a review, are they given to the police or your lawyer. Everything else deletes itself after 7 days." },
+  kvSettings: { hi: "सेटिंग", mr: "सेटिंग", gu: "સેટિંગ", en: "Settings" },
+  kvVideoToggle:{ hi: "सामने का कैमरा (वीडियो)", mr: "समोरचा कॅमेरा (व्हिडिओ)", gu: "આગળનો કૅમેરા (વીડિયો)", en: "Front camera (video)" },
+  kvVideoHint:{ hi: "कैमरा आपको और सवारी को देखता है — बैठने से उतरने तक", mr: "कॅमेरा तुम्हाला आणि प्रवाशाला पाहतो — बसण्यापासून उतरण्यापर्यंत", gu: "કૅમેરા તમને અને સવારીને જુએ છે — બેસવાથી ઊતરવા સુધી", en: "Sees you and the rider — from getting on to getting off" },
+  kvOn:       { hi: "चालू", mr: "चालू", gu: "ચાલુ", en: "On" },
+  kvOff:      { hi: "बंद", mr: "बंद", gu: "બંધ", en: "Off" },
+  kvEdit:     { hi: "बदलें", mr: "बदला", gu: "બદલો", en: "Edit" },
+  kvContacts: { hi: "इमरजेंसी नंबर", mr: "इमर्जन्सी नंबर", gu: "ઇમરજન્સી નંબર", en: "Emergency contacts" },
+  kvContactsHint:{ hi: "SOS दबाने पर इन्हें आपकी लोकेशन SMS होगी। ये नंबर सिर्फ़ इस फ़ोन में रहते हैं।", mr: "SOS दाबल्यावर यांना तुमचे लोकेशन SMS होईल. हे नंबर फक्त या फोनमध्ये राहतात.", gu: "SOS દબાવતાં આમને તમારું લોકેશન SMS થશે. આ નંબર ફક્ત આ ફોનમાં રહે છે.", en: "SOS texts them your location. These numbers stay on this phone only." },
+  kvContactsNone:{ hi: "अभी कोई नंबर नहीं", mr: "अजून नंबर नाही", gu: "હજુ કોઈ નંબર નથી", en: "No numbers yet" },
+  kvSaveContacts:{ hi: "सेव करें", mr: "सेव्ह करा", gu: "સેવ કરો", en: "Save" },
+  kvBadPhone: { hi: "10 अंकों का मोबाइल नंबर डालें", mr: "10 अंकी मोबाईल नंबर टाका", gu: "10 અંકનો મોબાઇલ નંબર નાખો", en: "Enter a 10-digit mobile number" },
+  kvReports:  { hi: "मेरी सेफ़्टी रिपोर्ट", mr: "माझे सेफ्टी रिपोर्ट", gu: "મારા સેફ્ટી રિપોર્ટ", en: "My safety reports" },
+  kvNoReports:{ hi: "अभी कोई रिपोर्ट नहीं", mr: "अजून रिपोर्ट नाही", gu: "હજુ કોઈ રિપોર્ટ નથી", en: "No reports yet" },
+  kvSt_new:   { hi: "भेजी गई", mr: "पाठवला", gu: "મોકલ્યો", en: "Sent" },
+  kvSt_held:  { hi: "जाँच में · रिकॉर्डिंग सुरक्षित", mr: "तपासणीत · रेकॉर्डिंग सुरक्षित", gu: "તપાસમાં · રેકોર્ડિંગ સુરક્ષિત", en: "Under review · recording kept" },
+  kvSt_shared:{ hi: "पुलिस/वकील को दी गई", mr: "पोलीस/वकिलांना दिली", gu: "પોલીસ/વકીલને આપ્યું", en: "Given to police/lawyer" },
+  kvSt_closed:{ hi: "बंद", mr: "बंद", gu: "બંધ", en: "Closed" },
+  kvIntroT:   { hi: "कवच कैसे काम करता है", mr: "कवच कसे काम करते", gu: "કવચ કેવી રીતે કામ કરે છે", en: "How Kavach works" },
+  kvIntro1:   { hi: "एक टैप — आवाज़ और सामने के कैमरे का वीडियो रिकॉर्ड, समय और लोकेशन के साथ।", mr: "एक टॅप — आवाज आणि समोरच्या कॅमेऱ्याचा व्हिडिओ रेकॉर्ड, वेळ आणि लोकेशनसह.", gu: "એક ટેપ — અવાજ અને આગળના કૅમેરાનો વીડિયો રેકોર્ડ, સમય અને લોકેશન સાથે.", en: "One tap records audio and front-camera video, with time and location." },
+  kvIntro2:   { hi: "आवाज़ हर मिनट लॉक होकर Galla सर्वर पर जाती है। वीडियो फ़ोन में लॉक रहता है और सिर्फ़ रिपोर्ट करने पर जाता है — आपका डेटा बचता है।", mr: "आवाज दर मिनिटाला लॉक होऊन Galla सर्व्हरवर जातो. व्हिडिओ फोनमध्ये लॉक राहतो आणि फक्त रिपोर्ट केल्यावर जातो — तुमचा डेटा वाचतो.", gu: "અવાજ દર મિનિટે લૉક થઈને Galla સર્વર પર જાય છે. વીડિયો ફોનમાં લૉક રહે છે અને ફક્ત રિપોર્ટ કરો ત્યારે જાય છે — તમારો ડેટા બચે છે.", en: "Audio is locked and sent to Galla's server every minute. Video stays locked on the phone and goes only when you report — saving your data." },
+  kvIntro3:   { hi: "कोई भी रिकॉर्डिंग देख नहीं सकता — आप भी नहीं। रिपोर्ट करने पर ही जाँच के बाद पुलिस या वकील को मिलती है।", mr: "कोणीही रेकॉर्डिंग पाहू शकत नाही — तुम्हीही नाही. रिपोर्ट केल्यावरच तपासणीनंतर पोलीस किंवा वकिलांना मिळते.", gu: "કોઈ રેકોર્ડિંગ જોઈ શકતું નથી — તમે પણ નહીં. રિપોર્ટ કરો ત્યારે જ તપાસ પછી પોલીસ અથવા વકીલને મળે છે.", en: "Nobody can watch the recordings — not even you. Only after a report, and a review, do they go to the police or a lawyer." },
+  kvIntro4:   { hi: "7 दिन बाद सब अपने-आप डिलीट, सिवाय रिपोर्ट वाली रिकॉर्डिंग के।", mr: "7 दिवसांनी सर्व आपोआप डिलीट, रिपोर्ट केलेले सोडून.", gu: "7 દિવસ પછી બધું આપમેળે ડિલીટ, રિપોર્ટ કરેલું સિવાય.", en: "Everything deletes itself after 7 days, except recordings tied to a report." },
+  kvSticker:  { hi: "मैंने गाड़ी पर \"यह राइड सुरक्षा के लिए रिकॉर्ड होती है\" वाला Galla स्टिकर लगाया है, जो सवारी को दिखता है।", mr: "मी गाडीवर \"ही राईड सुरक्षेसाठी रेकॉर्ड होते\" असा Galla स्टिकर लावला आहे, जो प्रवाशाला दिसतो.", gu: "મેં વાહન પર \"આ રાઇડ સુરક્ષા માટે રેકોર્ડ થાય છે\" વાળું Galla સ્ટીકર લગાવ્યું છે, જે સવારીને દેખાય છે.", en: "I have put the Galla sticker \"This ride is recorded for safety\" where the rider can see it." },
+  kvAgree:    { hi: "समझ गया, चालू करें", mr: "समजले, चालू करा", gu: "સમજાઈ ગયું, ચાલુ કરો", en: "Got it, start" },
+  kvNeedSticker:{ hi: "पहले स्टिकर वाला बॉक्स टिक करें", mr: "आधी स्टिकरचा बॉक्स टिक करा", gu: "પહેલાં સ્ટીકર વાળું બૉક્સ ટિક કરો", en: "Tick the sticker box first" },
+  kvPerm:     { hi: "कैमरा और माइक की अनुमति दें — Chrome में ऊपर 🔒 → Permissions", mr: "कॅमेरा आणि माइकची परवानगी द्या — Chrome मध्ये वर 🔒 → Permissions", gu: "કૅમેરા અને માઇકની પરવાનગી આપો — Chrome માં ઉપર 🔒 → Permissions", en: "Allow camera and microphone — in Chrome tap 🔒 at the top → Permissions" },
+  kvCamFail:  { hi: "कैमरा नहीं मिला — सिर्फ़ आवाज़ रिकॉर्ड हो रही है", mr: "कॅमेरा मिळाला नाही — फक्त आवाज रेकॉर्ड होत आहे", gu: "કૅમેરા મળ્યો નહીં — ફક્ત અવાજ રેકોર્ડ થાય છે", en: "Camera unavailable — recording audio only" },
+  kvEmbedded: { hi: "इस प्रीव्यू में कैमरा बंद रहता है। रिकॉर्डिंग Galla की अपनी लिंक (Chrome) में चलेगी।", mr: "या प्रीव्ह्यूमध्ये कॅमेरा बंद असतो. रेकॉर्डिंग Galla च्या स्वतःच्या लिंकवर (Chrome) चालेल.", gu: "આ પ્રીવ્યૂમાં કૅમેરા બંધ રહે છે. રેકોર્ડિંગ Galla ની પોતાની લિંક (Chrome) માં ચાલશે.", en: "Camera is blocked inside this preview. Recording works from Galla's own link in Chrome." },
+  kvNoSupport:{ hi: "यह ब्राउज़र रिकॉर्डिंग नहीं कर सकता। Galla को Chrome में खोलें।", mr: "हा ब्राउझर रेकॉर्डिंग करू शकत नाही. Galla Chrome मध्ये उघडा.", gu: "આ બ્રાઉઝર રેકોર્ડિંગ કરી શકતું નથી. Galla ને Chrome માં ખોલો.", en: "This browser can't record. Open Galla in Chrome." },
+  kvNotSetup: { hi: "कवच अभी चालू नहीं किया गया है। Galla टीम से संपर्क करें।", mr: "कवच अजून सुरू केलेले नाही. Galla टीमशी संपर्क करा.", gu: "કવચ હજુ ચાલુ કરાયું નથી. Galla ટીમનો સંપર્ક કરો.", en: "Kavach isn't switched on for your link yet. Contact the Galla team." },
+  kvReport:   { hi: "समस्या रिपोर्ट करें", mr: "समस्या रिपोर्ट करा", gu: "સમસ્યા રિપોર્ટ કરો", en: "Report a problem" },
+  kvRepT:     { hi: "सेफ़्टी रिपोर्ट", mr: "सेफ्टी रिपोर्ट", gu: "સેફ્ટી રિપોર્ટ", en: "Safety report" },
+  kvRepWhat:  { hi: "क्या हुआ?", mr: "काय झाले?", gu: "શું થયું?", en: "What happened?" },
+  kvRepWhen:  { hi: "कब हुआ?", mr: "कधी झाले?", gu: "ક્યારે થયું?", en: "When?" },
+  kvW30:      { hi: "अभी / 30 मिनट में", mr: "आता / 30 मिनिटांत", gu: "હમણાં / 30 મિનિટમાં", en: "Just now / 30 min" },
+  kvW60:      { hi: "पिछले 1 घंटे में", mr: "मागील 1 तासात", gu: "છેલ્લા 1 કલાકમાં", en: "In the last hour" },
+  kvW120:     { hi: "पिछले 2 घंटे में", mr: "मागील 2 तासांत", gu: "છેલ્લા 2 કલાકમાં", en: "In the last 2 hours" },
+  kvWPick:    { hi: "समय चुनें", mr: "वेळ निवडा", gu: "સમય પસંદ કરો", en: "Pick a time" },
+  kvC_pay:    { hi: "पैसे नहीं दिए", mr: "पैसे दिले नाहीत", gu: "પૈસા ન આપ્યા", en: "Didn't pay" },
+  kvC_abuse:  { hi: "गाली / धमकी", mr: "शिवीगाळ / धमकी", gu: "ગાળ / ધમકી", en: "Abuse / threat" },
+  kvC_sexual: { hi: "छेड़छाड़ / यौन उत्पीड़न", mr: "छेडछाड / लैंगिक छळ", gu: "છેડતી / જાતીય સતામણી", en: "Sexual harassment" },
+  kvC_assault:{ hi: "मारपीट / हमला", mr: "मारहाण / हल्ला", gu: "મારામારી / હુમલો", en: "Assault" },
+  kvC_accident:{ hi: "एक्सीडेंट", mr: "अपघात", gu: "અકસ્માત", en: "Accident" },
+  kvC_other:  { hi: "कुछ और", mr: "दुसरे काही", gu: "બીજું કંઈ", en: "Something else" },
+  kvC_sos:    { hi: "SOS", mr: "SOS", gu: "SOS", en: "SOS" },
+  kvRepNote:  { hi: "थोड़ा बताएं (वैकल्पिक)", mr: "थोडक्यात सांगा (ऐच्छिक)", gu: "થોડું જણાવો (વૈકલ્પિક)", en: "Tell us briefly (optional)" },
+  kvRepSend:  { hi: "रिपोर्ट भेजें", mr: "रिपोर्ट पाठवा", gu: "રિપોર્ટ મોકલો", en: "Send report" },
+  kvRepNeed:  { hi: "क्या हुआ, चुनें", mr: "काय झाले ते निवडा", gu: "શું થયું તે પસંદ કરો", en: "Pick what happened" },
+  kvRepTime:  { hi: "समय चुनें", mr: "वेळ निवडा", gu: "સમય પસંદ કરો", en: "Pick the time" },
+  kvRepDone:  { hi: "रिपोर्ट मिल गई", mr: "रिपोर्ट मिळाला", gu: "રિપોર્ટ મળી ગયો", en: "Report received" },
+  kvRepDoneP: { hi: "उस समय की रिकॉर्डिंग डिलीट नहीं होगी। Galla टीम आपसे संपर्क करेगी।", mr: "त्या वेळेचे रेकॉर्डिंग डिलीट होणार नाही. Galla टीम तुमच्याशी संपर्क करेल.", gu: "એ સમયનું રેકોર્ડિંગ ડિલીટ નહીં થાય. Galla ટીમ તમારો સંપર્ક કરશે.", en: "That time's recordings won't be deleted. The Galla team will contact you." },
+  kvSosCall:  { hi: "112 पर कॉल करें", mr: "112 वर कॉल करा", gu: "112 પર કૉલ કરો", en: "Call 112" },
+  kvSosSms:   { hi: "मेरे लोगों को लोकेशन भेजें", mr: "माझ्या लोकांना लोकेशन पाठवा", gu: "મારા લોકોને લોકેશન મોકલો", en: "Send my location to my people" },
+  kvSosNote:  { hi: "कवच रिकॉर्डिंग चालू है और Galla टीम को रिपोर्ट चली गई है।", mr: "कवच रेकॉर्डिंग चालू आहे आणि Galla टीमला रिपोर्ट गेला आहे.", gu: "કવચ રેકોર્ડિંગ ચાલુ છે અને Galla ટીમને રિપોર્ટ ગયો છે.", en: "Kavach is recording and a report has gone to the Galla team." },
+  kvSosLoc:   { hi: "लोकेशन ढूँढ रहे हैं…", mr: "लोकेशन शोधत आहोत…", gu: "લોકેશન શોધીએ છીએ…", en: "Finding your location…" },
+  kvSosMsg:   { hi: "SOS! मुझे तुरंत मदद चाहिए। मेरी लोकेशन: {u} (Galla कैप्टन {c})", mr: "SOS! मला लगेच मदत हवी आहे. माझे लोकेशन: {u} (Galla कॅप्टन {c})", gu: "SOS! મને તરત મદદ જોઈએ છે. મારું લોકેશન: {u} (Galla કૅપ્ટન {c})", en: "SOS! I need help now. My location: {u} (Galla captain {c})" },
+  kvDemo:     { hi: "डेमो: रिकॉर्डिंग लॉक होकर इसी फ़ोन में रहती है, सर्वर पर नहीं जाती।", mr: "डेमो: रेकॉर्डिंग लॉक होऊन याच फोनमध्ये राहते, सर्व्हरवर जात नाही.", gu: "ડેમો: રેકોર્ડિંગ લૉક થઈને આ જ ફોનમાં રહે છે, સર્વર પર જતું નથી.", en: "Demo: recordings are locked and stay on this phone; nothing goes to a server." }
+};
+
+const APPS = [
+  { k: "rapido", n: "Rapido" }, { k: "uber", n: "Uber" }, { k: "ola", n: "Ola" },
+  { k: "namma", n: "Namma Yatri" }, { k: "indrive", n: "inDrive" }, { k: "other", n: null }
+];
+const VEHICLES = [
+  { k: "bike", img: "assets/bike.webp" }, { k: "auto", img: "assets/auto.webp" }, { k: "cab", img: "assets/cab.webp" }
+];
+const LANGS = [["hi", "हिंदी"], ["mr", "मराठी"], ["gu", "ગુજરાતી"], ["en", "English"]];
+const EXP_CATS = ["fuel", "service", "fees", "other"];
+const SLOTS = [[7, 10], [10, 13], [13, 16], [16, 19], [19, 22]];
+const LONG_ONLINE_MS = 12 * 3600e3;
+const DAY = 864e5;
+
+/* =========================================================
+   3. HELPERS
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const LS = {
+  get(k, d = null) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+let lang = LS.get("gl_lang") || "hi";
+const t = k => (T[k] && (T[k][lang] || T[k].en)) || k;
+const fill = (s, o) => s.replace(/\{(\w+)\}/g, (_, k) => o[k]);
+const appName = k => { const a = APPS.find(x => x.k === k); return a && a.n ? a.n : t("other"); };
+const inr = n => Math.round(n).toLocaleString("en-IN");
+const rupees = n => (n < 0 ? "−₹" : "₹") + inr(Math.abs(n));
+const dur = ms => { const m = Math.max(0, Math.round(ms / 60000)); const h = Math.floor(m / 60); return h ? `${h}${t("hShort")} ${m % 60}${t("mShort")}` : `${m}${t("mShort")}`; };
+const locale = () => ({ hi: "hi-IN", mr: "mr-IN", gu: "gu-IN", en: "en-IN" })[lang];
+const hhmm = ts => new Date(ts).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+const dayStart = (ts = Date.now()) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const weekStart = () => dayStart() - 6 * DAY;
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+
+function toast(msg) { const el = $("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), msg.length > 60 ? 4500 : 1600); }
+const SCREENS = ["scrLoading", "scrMessage", "scrSetup", "scrMain", "scrWeek", "scrKavach"];
+let current = "scrLoading";
+function show(id) { current = id; SCREENS.forEach(s => $(s).classList.toggle("hidden", s !== id)); window.scrollTo(0, 0); }
+function message(text) { $("msgText").textContent = text; show("scrMessage"); }
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+
+/* =========================================================
+   4. STORES — same interface for demo (local) and Firebase
+   cap = { uid, online: {appKey: startMs}, profile: {vehicle, apps[], lang} }
+   entries: trip {type,app,fare,pay,km,ts} · expense {type,cat,amount,ts}
+            session {type,app,start,end,ts}
+   ========================================================= */
+class LocalStore {
+  constructor(cid) { this.key = "gl_demo_" + cid; this.data = LS.get(this.key, { cap: { online: {}, profile: null }, entries: [] }); }
+  async init() { return "ok"; }
+  save() { LS.set(this.key, this.data); this.emit(); }
+  emit() { if (this.cb) { const ws = weekStart(); this.cb({ cap: this.data.cap, entries: this.data.entries.filter(e => e.ts >= ws) }); } }
+  subscribe(cb) { this.cb = cb; this.emit(); }
+  async addEntry(e) { this.data.entries.push({ ...e, id: uid() }); this.save(); }
+  async removeEntry(id) { this.data.entries = this.data.entries.filter(e => e.id !== id); this.save(); }
+  async setOnline(app, start) { if (start) this.data.cap.online[app] = start; else delete this.data.cap.online[app]; this.save(); }
+  async setProfile(p) { this.data.cap.profile = p; this.save(); }
+  /** Demo: returns the trips from a real Rapido "All Orders → Day" screen (8 Oct 2026), moved to a recent date. */
+  async readShot() {
+    await new Promise(r => setTimeout(r, 1400));
+    const now = new Date(), d = new Date(now.getHours() >= 21 ? now : now.getTime() - DAY);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const T_ = (time, amount, pickupArea) => ({ date, time, amount, vehicle: "Bike", pickupArea, status: "completed" });
+    return { app: "rapido", summaryOrders: 7, summaryEarnings: 395.04, demo: true, trips: [
+      T_("20:51", 30.6, "Vikhroli West"), T_("20:39", 33.18, "Powai"), T_("20:24", 46.04, "Ghatkopar West"),
+      T_("20:12", 33, "Ghatkopar East"), T_("19:35", 75.56, "Powai"), T_("19:08", 106.98, "Andheri East"), T_("18:40", 69.68, "Powai")
+    ] };
+  }
+  /* Kavach (demo): nothing leaves the phone. */
+  async kvRegister() {}
+  async kvUpload() { await new Promise(r => setTimeout(r, 250)); }
+  async addReport(r) { (this.data.reports ||= []).unshift({ ...r, id: uid() }); this.data.reports = this.data.reports.slice(0, 20); this.save(); if (this.rcb) this.rcb(this.data.reports); }
+  watchReports(cb) { this.rcb = cb; cb(this.data.reports || []); }
+}
+
+const SHOT_PROMPT = `You read screenshots from Indian ride-hailing captain apps (Rapido, Uber, Ola, Namma Yatri, inDrive) showing the captain's OWN order history or earnings list.
+Return JSON only, following the schema.
+- app: one of rapido, uber, ola, namma, indrive, other (identify from the screen's wording and style).
+- summaryOrders / summaryEarnings: only if a summary box with completed-order count and total earnings is visible; earnings as a plain number (395.04).
+- missedCount: only if a count of missed orders is clearly shown.
+- trips: every order card whose time AND amount are both fully visible. Skip cards cut off at the top or bottom edge.
+  - date: YYYY-MM-DD from the nearest date heading above the card (e.g. "08 October, 2026" -> 2026-10-08).
+  - time: 24-hour HH:MM (8:39 pm -> 20:39).
+  - amount: the captain's earning for that order as a number, no currency sign.
+  - vehicle: as shown (Bike, Auto, Cab) if visible.
+  - pickupArea: ONLY the locality / neighbourhood of the pickup (first, green-dot) address, like "Powai", "Ghatkopar West", "Andheri East". Never a building, society, flat, shop, landmark or house number. Leave empty if unsure.
+  - status: completed, cancelled or missed (from the selected tab; default completed).
+Never output a drop address, a customer name, a phone number or any other personal detail.`;
+
+class FireStore {
+  constructor(cid) { this.cid = cid; this.cap = null; this.entries = []; }
+  async init() {
+    const base = `https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/`;
+    const [{ initializeApp }, A, F] = await Promise.all([import(base + "firebase-app.js"), import(base + "firebase-auth.js"), import(base + "firebase-firestore.js")]);
+    this.F = F;
+    const app = initializeApp(FIREBASE_CONFIG);
+    this.app = app;
+    if (RECAPTCHA_SITE_KEY) {
+      try {
+        const AC = await import(base + "firebase-app-check.js");
+        AC.initializeAppCheck(app, { provider: new AC.ReCaptchaEnterpriseProvider(RECAPTCHA_SITE_KEY), isTokenAutoRefreshEnabled: true });
+      } catch (e) { console.warn("App Check not started", e); }
+    }
+    this.db = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) });
+    const auth = A.getAuth(app);
+    let u = auth.currentUser || await new Promise(res => { const off = A.onAuthStateChanged(auth, x => { off(); res(x); }); });
+    if (!u) { if (!navigator.onLine) return "needNet"; u = (await A.signInAnonymously(auth)).user; }
+    this.uid = u.uid;
+    this.capRef = F.doc(this.db, "captains", this.cid);
+    this.entriesCol = F.collection(this.db, "captains", this.cid, "entries");
+    try { const snap = await F.getDoc(this.capRef); if (snap.exists()) return "ok"; } catch (e) { /* not ours, or not created */ }
+    try { await F.setDoc(this.capRef, { uid: this.uid, online: {}, profile: null, createdAt: F.serverTimestamp() }); return "ok"; }
+    catch (e) { return navigator.onLine ? "claimed" : "needNet"; }
+  }
+  subscribe(cb) {
+    const F = this.F, push = () => { if (this.cap) cb({ cap: this.cap, entries: this.entries }); };
+    F.onSnapshot(this.capRef, s => { this.cap = s.data() || { online: {}, profile: null }; push(); });
+    const q = F.query(this.entriesCol, F.where("ts", ">=", weekStart()), F.orderBy("ts", "desc"));
+    F.onSnapshot(q, s => { this.entries = s.docs.map(d => ({ id: d.id, ...d.data() })); push(); });
+  }
+  /** Reads one screenshot with Gemini via Firebase AI Logic. Returns the parsed JSON. */
+  async readShot(b64) {
+    if (!this.model) {
+      const M = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-ai.js`), S = M.Schema;
+      const schema = S.object({
+        properties: {
+          app: S.string(),
+          summaryOrders: S.number(), summaryEarnings: S.number(), missedCount: S.number(),
+          trips: S.array({ items: S.object({
+            properties: { date: S.string(), time: S.string(), amount: S.number(), vehicle: S.string(), pickupArea: S.string(), status: S.string() },
+            optionalProperties: ["vehicle", "pickupArea", "status"]
+          }) })
+        },
+        optionalProperties: ["summaryOrders", "summaryEarnings", "missedCount"]
+      });
+      const ai = M.getAI(this.app, { backend: new M.GoogleAIBackend() });
+      this.model = M.getGenerativeModel(ai, { model: AI_MODEL, generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0 } });
+    }
+    const res = await this.model.generateContent([SHOT_PROMPT, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
+    return JSON.parse(res.response.text());
+  }
+  // Writes land in the local cache at once and sync when online.
+  async addEntry(e) { this.F.setDoc(this.F.doc(this.entriesCol), { ...e, createdAt: this.F.serverTimestamp() }).catch(console.error); }
+  async removeEntry(id) { this.F.deleteDoc(this.F.doc(this.entriesCol, id)).catch(console.error); }
+  async setOnline(app, start) { this.F.updateDoc(this.capRef, { ["online." + app]: start ? start : this.F.deleteField() }).catch(console.error); }
+  async setProfile(p) { this.F.updateDoc(this.capRef, { profile: p }).catch(console.error); }
+
+  /* Kavach. Hash registry: one small doc per recorded minute, written at capture time (even for video that never leaves the phone),
+     auto-deleted by a Firestore TTL policy on expireAt. Recordings themselves go to Cloud Storage, encrypted, create-only. */
+  async kvRegister(m) {
+    const F = this.F;
+    F.setDoc(F.doc(this.db, "captains", this.cid, "kavach", m.id), { ...m, expireAt: F.Timestamp.fromMillis(m.start + 8 * DAY), createdAt: F.serverTimestamp() }).catch(console.error);
+  }
+  async kvUpload(id, blob) {
+    if (!this.S) {
+      this.S = await import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-storage.js`);
+      this.storage = this.S.getStorage(this.app);
+    }
+    await this.S.uploadBytes(this.S.ref(this.storage, `kavach/${this.cid}/${id}.gkv`), blob, { contentType: "application/octet-stream" });
+  }
+  async addReport(r) { const F = this.F, ref = F.doc(F.collection(this.db, "captains", this.cid, "reports")); F.setDoc(ref, { ...r, createdAt: F.serverTimestamp() }).catch(console.error); return ref.id; }
+  watchReports(cb) {
+    const F = this.F, q = F.query(F.collection(this.db, "captains", this.cid, "reports"), F.orderBy("ts", "desc"), F.limit(10));
+    F.onSnapshot(q, s => cb(s.docs.map(d => ({ id: d.id, ...d.data() }))), console.error);
+  }
+}
+
+/* =========================================================
+   5. METRICS
+   ========================================================= */
+function unionMs(iv) {
+  const s = iv.filter(x => x[1] > x[0]).sort((a, b) => a[0] - b[0]);
+  let total = 0, cs = null, ce = null;
+  for (const [a, b] of s) {
+    if (cs === null) { cs = a; ce = b; } else if (a <= ce) { ce = Math.max(ce, b); } else { total += ce - cs; cs = a; ce = b; }
+  }
+  return cs === null ? total : total + ce - cs;
+}
+/** Online intervals per app (sessions + currently-open), unclipped. */
+function intervals(cap, entries) {
+  const now = Date.now(), out = [];
+  entries.filter(e => e.type === "session").forEach(e => out.push({ app: e.app, a: e.start, b: e.end }));
+  Object.entries(cap.online || {}).forEach(([app, st]) => out.push({ app, a: st, b: now }));
+  return out;
+}
+const clipMs = (iv, from, to) => Math.max(0, Math.min(iv.b, to) - Math.max(iv.a, from));
+
+function summarize(cap, entries, from, to = Date.now()) {
+  const ivs = intervals(cap, entries);
+  const trips = entries.filter(e => e.type === "trip" && e.ts >= from && e.ts <= to);
+  const exps = entries.filter(e => e.type === "expense" && e.ts >= from && e.ts <= to);
+  const perApp = {};
+  const P = k => (perApp[k] ||= { trips: 0, fares: 0, ms: 0 });
+  ivs.forEach(iv => { const m = clipMs(iv, from, to); if (m > 0) P(iv.app).ms += m; });
+  trips.forEach(e => { P(e.app).trips++; P(e.app).fares += e.fare; });
+  const onlineMs = unionMs(ivs.map(iv => [Math.max(iv.a, from), Math.min(iv.b, to)]));
+  const fares = trips.reduce((s, e) => s + e.fare, 0);
+  const expenses = exps.reduce((s, e) => s + e.amount, 0);
+  const net = fares - expenses;
+  return { fares, expenses, net, trips: trips.length, onlineMs, perHour: onlineMs >= 5 * 60000 ? net / (onlineMs / 3600e3) : null, perApp };
+}
+
+function heatmap(cap, entries) {
+  const ivs = intervals(cap, entries), d0 = weekStart(), rows = [];
+  const slotTot = SLOTS.map(() => ({ f: 0, ms: 0 }));
+  for (let d = 0; d < 7; d++) {
+    const day = d0 + d * DAY, cells = [];
+    SLOTS.forEach(([h1, h2], si) => {
+      const a = day + h1 * 3600e3, b = day + h2 * 3600e3;
+      const ms = unionMs(ivs.map(iv => [Math.max(iv.a, a), Math.min(iv.b, b)]));
+      const f = entries.filter(e => e.type === "trip" && e.ts >= a && e.ts < b).reduce((s, e) => s + e.fare, 0);
+      slotTot[si].f += f; slotTot[si].ms += ms;
+      cells.push(ms >= 15 * 60000 ? f / (ms / 3600e3) : null);
+    });
+    rows.push({ day, cells });
+  }
+  const vals = rows.flatMap(r => r.cells).filter(v => v !== null);
+  const max = vals.length ? Math.max(...vals) : 0;
+  rows.forEach(r => { r.levels = r.cells.map(v => v === null ? 0 : !max ? 1 : v >= 0.75 * max ? 3 : v >= 0.45 * max ? 2 : 1); });
+  let best = null;
+  slotTot.forEach((s, i) => { if (s.ms >= 3600e3) { const v = s.f / (s.ms / 3600e3); if (!best || v > best.v) best = { i, v }; } });
+  return { rows, best };
+}
+
+/* =========================================================
+   6. UI STATE
+   ========================================================= */
+let store, cid = "", state = { cap: { online: {}, profile: null }, entries: [] };
+let setupDraft = { vehicle: null, apps: [] };
+let trip = { app: null, pay: LS.get("gl_pay", "cash"), amt: "", km: "", field: "amt" };
+let exp = { cat: null, amt: "" };
+let shownNet = 0, netAnim = null;
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  $("langSel").value = lang;
+  document.querySelectorAll("[data-t]").forEach(e => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll("[data-ph]").forEach(e => { e.placeholder = t(e.dataset.ph); });
+  $("todayDate").textContent = new Date().toLocaleDateString(locale(), { weekday: "long", day: "numeric", month: "long" });
+  if (cid) $("codeLabel").textContent = `${t("yourCode")}: ${cid}`;
+  renderBanners();
+  if (current === "scrSetup") renderSetup();
+  render();
+  kvRender();
+}
+
+function renderBanners() {
+  const box = $("bannerBox"); box.innerHTML = "";
+  if (DEMO) box.appendChild(el("div", "banner demo", t("demo")));
+  if (!DEMO && !navigator.onLine) box.appendChild(el("div", "banner off", t("offline")));
+}
+
+function myApps() {
+  const p = state.cap.profile;
+  const list = p && p.apps && p.apps.length ? p.apps : APPS.map(a => a.k);
+  return APPS.filter(a => list.includes(a.k)).map(a => a.k);
+}
+
+/* ---------- count-up net ---------- */
+function setNet(target) {
+  cancelAnimationFrame(netAnim);
+  const from = shownNet, t0 = performance.now(), D = 900;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / D), v = from + (target - from) * (1 - Math.pow(1 - p, 3));
+    shownNet = v; $("vNet").textContent = rupees(v); $("vNet").classList.toggle("neg", v < 0);
+    if (p < 1) netAnim = requestAnimationFrame(step);
+  };
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { shownNet = target; $("vNet").textContent = rupees(target); return; }
+  netAnim = requestAnimationFrame(step);
+}
+
+/* ---------- home ---------- */
+function render() {
+  if (current === "scrWeek") return renderWeek();
+  if (current === "scrKavach") return kvRender();
+  if (current !== "scrMain") return;
+  const todayEntries = state.entries.filter(e => e.ts >= dayStart() || e.type === "session");
+  const m = summarize(state.cap, todayEntries, dayStart());
+  if (Math.round(m.net) !== Math.round(render._lastNet)) { setNet(m.net); render._lastNet = m.net; }
+  $("vPerHour").textContent = m.perHour === null ? `₹— ${t("perHr")}` : `${rupees(m.perHour)} ${t("perHr")}`;
+  $("vOnline").textContent = `${dur(m.onlineMs)} ${t("onlineWord")}`;
+  $("vFares").textContent = "+" + rupees(m.fares);
+  $("vTrips").textContent = m.trips;
+  $("vExp").textContent = m.expenses ? "−₹" + inr(m.expenses) : "₹0";
+
+  // Online toggles
+  const now = Date.now(), online = state.cap.online || {}, box = $("onlineBox");
+  box.innerHTML = "";
+  myApps().forEach(k => {
+    const on = online[k], b = el("button", "appbtn" + (on ? " on" : ""));
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    const txt = el("span"); txt.append(el("span", "nm", appName(k)), el("span", "st", on ? `${dur(now - on)} ${t("since")}${now - on > LONG_ONLINE_MS ? " ⚠" : ""}` : t("offTap")));
+    if (on && now - on > LONG_ONLINE_MS) b.title = t("longOnline");
+    b.append(el("span", "dot"), txt);
+    b.onclick = () => toggleOnline(k);
+    box.appendChild(b);
+  });
+
+  // Today by app
+  const ta = $("todayApps"); ta.innerHTML = "";
+  const rows = Object.entries(m.perApp).map(([k, p]) => ({ k, p, v: p.ms >= 5 * 60000 ? p.fares / (p.ms / 3600e3) : null }))
+    .filter(r => r.p.trips || r.p.ms).sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
+  if (!rows.length) ta.appendChild(el("div", "muted", t("noneApps")));
+  else {
+    const max = Math.max(...rows.map(r => r.v || 0)) || 1, wrap = el("div"); wrap.style.cssText = "display:flex;flex-direction:column;gap:10px";
+    rows.forEach((r, i) => {
+      const row = el("div", "barrow"), bar = el("div", "bar"), fillEl = el("i", i === 0 && r.v ? "top" : "");
+      fillEl.style.width = (r.v ? Math.max(4, (r.v / max) * 100) : 0) + "%"; fillEl.style.animationDelay = (i * 0.12) + "s";
+      bar.appendChild(fillEl);
+      const nm = el("span"); nm.append(el("b", "", appName(r.k))); nm.append(el("div", "muted", `${r.p.trips} ${t("trips")}`)); nm.lastChild.style.fontSize = "12px";
+      row.append(nm, bar, el("b", "", r.v === null ? "—" : rupees(r.v)));
+      wrap.appendChild(row);
+    });
+    ta.appendChild(wrap);
+  }
+
+  // Today's entries
+  const ul = $("recentList"); ul.innerHTML = "";
+  const list = state.entries.filter(e => e.ts >= dayStart()).sort((a, b) => b.ts - a.ts);
+  if (!list.length) { const li = el("li"); li.appendChild(el("span", "muted", t("none"))); ul.appendChild(li); }
+  list.forEach(e => {
+    const li = el("li"), mid = el("div", "li-m"), amt = el("div", "li-a");
+    li.appendChild(el("div", "li-t", hhmm(e.type === "session" ? e.start : e.ts)));
+    if (e.type === "trip") {
+      const nm = el("b", "", appName(e.app)); if (e.source === "shot") nm.appendChild(el("span", "tag", t("shotTag")));
+      mid.append(nm, el("span", "", [e.area, e.pay === "cash" ? t("cash") : e.pay === "online" ? t("upi") : null, e.km ? `${e.km} km` : null].filter(Boolean).join(" · ")));
+      amt.textContent = "+" + money2(e.fare); amt.classList.add("plus");
+    } else if (e.type === "expense") {
+      mid.append(el("b", "", t(e.cat)), el("span", "", t("expenses")));
+      amt.textContent = "−₹" + inr(e.amount); amt.classList.add("minus");
+    } else {
+      mid.append(el("b", "", `${appName(e.app)} · ${t("sessionWord")}`), el("span", "", `${hhmm(e.start)}–${hhmm(e.end)}`));
+      amt.textContent = dur(e.end - Math.max(e.start, dayStart()));
+    }
+    const x = el("button", "li-x", "×"); x.setAttribute("aria-label", t("confirmDel"));
+    x.onclick = async () => { if (confirm(t("confirmDel"))) { await store.removeEntry(e.id); toast(t("deleted")); } };
+    li.append(mid, amt, x); ul.appendChild(li);
+  });
+}
+
+async function toggleOnline(k) {
+  const st = (state.cap.online || {})[k];
+  try {
+    if (st) { const end = Date.now(); await store.addEntry({ type: "session", app: k, start: st, end, ts: end }); await store.setOnline(k, null); }
+    else await store.setOnline(k, Date.now());
+  } catch { toast(t("errSave")); }
+}
+
+/* ---------- week ---------- */
+function renderWeek() {
+  const m = summarize(state.cap, state.entries, weekStart());
+  $("wNet").textContent = rupees(m.net);
+  $("wSub").innerHTML = "";
+  const b = el("b", "", m.perHour === null ? `₹— ${t("perHr")}` : `${rupees(m.perHour)} ${t("perHr")}`);
+  $("wSub").append(b, document.createTextNode(` ${t("avg")} · ${(m.onlineMs / 3600e3).toFixed(1)} ${t("hoursOnline")}`));
+  const fmt = ts => new Date(ts).toLocaleDateString(locale(), { day: "numeric", month: "short" });
+  $("weekRange").textContent = `${fmt(weekStart())} – ${fmt(Date.now())}`;
+
+  const H = heatmap(state.cap, state.entries), grid = $("heat");
+  grid.innerHTML = "";
+  grid.appendChild(el("div"));
+  SLOTS.forEach(([a, b]) => grid.appendChild(el("div", "", `${a > 12 ? a - 12 : a}–${b > 12 ? b - 12 : b}`)));
+  H.rows.forEach((r, ri) => {
+    grid.appendChild(el("div", "d", new Date(r.day).toLocaleDateString(locale(), { weekday: "short" })));
+    r.cells.forEach((v, ci) => {
+      const c = el("div", "c l" + r.levels[ci], v === null ? "" : inr(v));
+      c.style.animationDelay = (ri * 0.04 + ci * 0.02) + "s";
+      c.title = v === null ? "" : `₹${inr(v)}${t("perHr")}`;
+      grid.appendChild(c);
+    });
+  });
+
+  // Tip
+  const apps = Object.entries(m.perApp).map(([k, p]) => ({ k, v: p.ms >= 3600e3 ? p.fares / (p.ms / 3600e3) : null })).filter(x => x.v !== null).sort((a, b) => b.v - a.v);
+  if (H.best) {
+    const [a, b] = SLOTS[H.best.i];
+    let s = fill(t("bestTip"), { slot: `${t("slot" + H.best.i)} ${a > 12 ? a - 12 : a}–${b > 12 ? b - 12 : b}`, v: inr(H.best.v) });
+    if (apps.length) s += fill(t("bestApp"), { app: appName(apps[0].k) });
+    $("tipText").textContent = s;
+  } else $("tipText").textContent = t("noTip");
+
+  // By app
+  const wa = $("weekApps"); wa.innerHTML = "";
+  const rows = Object.entries(m.perApp).map(([k, p]) => ({ k, p, v: p.ms >= 15 * 60000 ? p.fares / (p.ms / 3600e3) : null }))
+    .filter(r => r.p.trips || r.p.ms).sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
+  if (!rows.length) { wa.appendChild(el("div", "muted", t("noneApps"))); return; }
+  const max = Math.max(...rows.map(r => r.v || 0)) || 1, wrap = el("div"); wrap.style.cssText = "display:flex;flex-direction:column;gap:10px";
+  rows.forEach((r, i) => {
+    const row = el("div", "barrow"), bar = el("div", "bar"), f = el("i", i === 0 && r.v ? "top" : "");
+    f.style.width = (r.v ? Math.max(4, (r.v / max) * 100) : 0) + "%"; f.style.animationDelay = (i * 0.12) + "s";
+    bar.appendChild(f);
+    const nm = el("span"); nm.append(el("b", "", appName(r.k)), el("div", "muted", `${r.p.trips} ${t("trips")} · ${dur(r.p.ms)}`)); nm.lastChild.style.fontSize = "12px";
+    row.append(nm, bar, el("b", "", r.v === null ? "—" : rupees(r.v)));
+    wrap.appendChild(row);
+  });
+  wa.appendChild(wrap);
+}
+$("goWeek").onclick = () => { show("scrWeek"); renderWeek(); };
+$("weekBack").onclick = () => { show("scrMain"); render._lastNet = null; shownNet = 0; render(); };
+
+/* ---------- sheets ---------- */
+function openSheet(id) { $("scrim").classList.add("open"); $(id).classList.add("open"); }
+function closeSheets() { $("scrim").classList.remove("open"); document.querySelectorAll(".sheet").forEach(s => s.classList.remove("open")); }
+$("scrim").onclick = closeSheets;
+document.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheets);
+
+function buildKeys(box, onKey, decimal) {
+  box.innerHTML = "";
+  ["1", "2", "3", "4", "5", "6", "7", "8", "9", decimal ? "." : "00", "0", "⌫"].forEach(k => {
+    const b = el("button", "key" + (k === "00" || k === "." || k === "⌫" ? " alt" : ""), k);
+    b.type = "button"; if (k === "⌫") b.setAttribute("aria-label", "Delete");
+    b.onclick = () => onKey(k); box.appendChild(b);
+  });
+}
+function typeInto(val, k, maxLen, allowDot) {
+  if (k === "⌫") return val.slice(0, -1);
+  if (k === ".") return !allowDot || val.includes(".") ? val : (val || "0") + ".";
+  if (allowDot && val.includes(".") && val.split(".")[1].length >= 1) return val;
+  const next = (val === "0" ? "" : val) + k;
+  return next.replace(".", "").length > maxLen ? val : next;
+}
+
+/* trip */
+function renderTrip() {
+  const ap = $("tripApps"); ap.innerHTML = "";
+  myApps().forEach(k => {
+    const b = el("button", "chip" + (trip.app === k ? " on" : ""), (trip.app === k ? "✓ " : "") + appName(k));
+    b.type = "button"; b.setAttribute("aria-pressed", trip.app === k ? "true" : "false");
+    b.onclick = () => { trip.app = k; renderTrip(); }; ap.appendChild(b);
+  });
+  const ps = $("paySeg"); ps.innerHTML = "";
+  [["cash", "cash"], ["online", "upi"]].forEach(([k, lbl]) => {
+    const b = el("button", "chip" + (trip.pay === k ? " yon" : ""), t(lbl)); b.type = "button";
+    b.onclick = () => { trip.pay = k; LS.set("gl_pay", k); renderTrip(); }; ps.appendChild(b);
+  });
+  $("tripAmt").textContent = trip.amt ? inr(Number(trip.amt)) : "0";
+  $("tripCaret").style.visibility = trip.field === "amt" ? "visible" : "hidden";
+  $("kmVal").textContent = trip.km ? trip.km + " km" : "—";
+  $("kmRow").classList.toggle("active", trip.field === "km");
+  buildKeys($("tripKeys"), k => {
+    if (trip.field === "km") trip.km = typeInto(trip.km, k, 3, true);
+    else trip.amt = typeInto(trip.amt, k, 4, false);
+    $("tripErr").textContent = ""; renderTrip();
+  }, trip.field === "km");
+  $("tripSave").textContent = `${t("saveTrip")} · ₹${trip.amt ? inr(Number(trip.amt)) : 0}`;
+}
+$("kmRow").onclick = () => { trip.field = trip.field === "km" ? "amt" : "km"; renderTrip(); };
+$("btnTrip").onclick = () => {
+  const onl = Object.keys(state.cap.online || {}).filter(k => myApps().includes(k));
+  trip.app = onl.length === 1 ? onl[0] : (myApps().length === 1 ? myApps()[0] : (trip.app && myApps().includes(trip.app) ? trip.app : null));
+  trip.amt = ""; trip.km = ""; trip.field = "amt"; $("tripErr").textContent = "";
+  renderTrip(); openSheet("sheetTrip");
+};
+$("tripSave").onclick = async () => {
+  const fare = Number(trip.amt), km = trip.km ? Number(trip.km) : null;
+  if (!trip.app) { $("tripErr").textContent = t("pickApp"); return; }
+  if (!(fare >= 1 && fare <= 5000)) { $("tripErr").textContent = t("enterFare"); return; }
+  if (km !== null && !(km >= 0 && km <= 300)) { $("tripErr").textContent = t("badKm"); return; }
+  try {
+    await store.addEntry({ type: "trip", app: trip.app, fare: Math.round(fare), pay: trip.pay, km, ts: Date.now(), vehicle: (state.cap.profile || {}).vehicle || null });
+    closeSheets();
+    const m = summarize(state.cap, state.entries, dayStart());
+    $("doneTripH").textContent = `₹${inr(fare)} ${t("inGalla")}`;
+    $("doneTripP").textContent = `${appName(trip.app)} · ${trip.pay === "cash" ? t("cash") : t("upi")} · ${t("todayTotal")} ${rupees(m.net)}`;
+    flash("doneTrip", 1900);
+  } catch { $("tripErr").textContent = t("errSave"); }
+};
+
+/* expense */
+function renderExp() {
+  const cb = $("expCats"); cb.innerHTML = "";
+  EXP_CATS.forEach(c => {
+    const b = el("button", "chip" + (exp.cat === c ? " yon" : ""), (exp.cat === c ? "✓ " : "") + t(c));
+    b.type = "button"; b.style.minHeight = "54px"; b.style.textAlign = "left";
+    b.onclick = () => { exp.cat = c; $("expErr").textContent = ""; renderExp(); }; cb.appendChild(b);
+  });
+  $("expAmt").textContent = exp.amt ? inr(Number(exp.amt)) : "0";
+  buildKeys($("expKeys"), k => { exp.amt = typeInto(exp.amt, k, 5, false); $("expErr").textContent = ""; renderExp(); }, false);
+  $("expSave").textContent = `${t("saveExp")} · ₹${exp.amt ? inr(Number(exp.amt)) : 0}`;
+}
+$("btnExp").onclick = () => { exp = { cat: null, amt: "" }; $("expErr").textContent = ""; renderExp(); openSheet("sheetExp"); };
+$("expSave").onclick = async () => {
+  const amt = Number(exp.amt);
+  if (!exp.cat) { $("expErr").textContent = t("pickCat"); return; }
+  if (!(amt >= 1 && amt <= 50000)) { $("expErr").textContent = t("enterAmt"); return; }
+  try {
+    await store.addEntry({ type: "expense", cat: exp.cat, amount: Math.round(amt), ts: Date.now() });
+    closeSheets();
+    const m = summarize(state.cap, state.entries, dayStart());
+    $("doneExpH").textContent = `₹${inr(amt)} ${t("expSaved")}`;
+    $("doneExpP").textContent = `${t(exp.cat)} · ${t("todayTotal")} ${rupees(m.net)}`;
+    flash("doneExp", 1500);
+  } catch { $("expErr").textContent = t("errSave"); }
+};
+
+function flash(id, ms) {
+  const o = $(id); o.classList.remove("open"); void o.offsetWidth; o.classList.add("open");
+  clearTimeout(flash._t); flash._t = setTimeout(() => o.classList.remove("open"), ms);
+  o.onclick = () => o.classList.remove("open");
+}
+
+/* ---------- screenshot import ---------- */
+let imp = {};
+function resetImp() { imp = { trips: [], summary: null, app: null, missed: null, hours: 0, shifts: [], haveSessions: false, demo: false, saveList: [] }; }
+resetImp();
+const IMP_STEPS = ["impPick", "impReading", "impReview"];
+function impStep(id) { IMP_STEPS.forEach(s => $(s).classList.toggle("hidden", s !== id)); }
+
+function fileToJpeg(file, maxW = 720) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, maxW / img.width), c = document.createElement("canvas");
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL("image/jpeg", 0.82));
+    };
+    img.onerror = rej; img.src = url;
+  });
+}
+const tsOf = (date, time) => new Date(`${date}T${time}:00`).getTime();
+const keyOf = tr => `${tr.date}|${tr.time}|${Number(tr.amount).toFixed(2)}`;
+const money2 = n => "₹" + Number(n).toLocaleString("en-IN", { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+
+/** Groups trip times into shifts: a gap over 60 min starts a new shift; 15 min before the first trip, 10 after the last. */
+function shiftsFrom(times) {
+  const ts = [...times].sort((a, b) => a - b), out = [];
+  ts.forEach(x => {
+    const last = out[out.length - 1];
+    if (last && x - last.lastTrip <= 60 * 60000) last.lastTrip = x; else out.push({ firstTrip: x, lastTrip: x });
+  });
+  return out.map(s => ({ start: s.firstTrip - 15 * 60000, end: s.lastTrip + 10 * 60000 }));
+}
+
+function planShifts() {
+  const kept = imp.trips.filter(x => x.keep), app = imp.app || "other";
+  const days = [...new Set(kept.map(x => x.date))];
+  imp.haveSessions = days.length > 0 && days.every(d => state.entries.some(e => e.type === "session" && !e.est && e.app === app && e.end > tsOf(d, "00:00") && e.start < tsOf(d, "00:00") + DAY));
+  imp.shifts = shiftsFrom(kept.map(x => tsOf(x.date, x.time)));
+  const est = imp.shifts.reduce((s, x) => s + (x.end - x.start), 0) / 3600e3;
+  imp.hours = Math.max(0.5, Math.round(est * 2) / 2);
+}
+
+async function readFiles(files) {
+  if (!files.length) return;
+  impStep("impReading");
+  $("readTxt").textContent = fill(t("reading"), { n: files.length });
+  const thumbs = $("impThumbs"); thumbs.innerHTML = "";
+  const jpgs = [];
+  for (const f of files) { try { const d = await fileToJpeg(f); jpgs.push(d); const i = el("img"); i.src = d; i.alt = ""; thumbs.appendChild(i); } catch {} }
+  let results;
+  try { results = await Promise.all(jpgs.map(d => store.readShot(d.split(",")[1]))); }
+  catch (e) { console.error(e); impStep(imp.trips.length ? "impReview" : "impPick"); toast(t("readFail")); return; }
+  const seen = new Set(imp.trips.map(keyOf));
+  results.forEach(r => {
+    if (!r) return;
+    if (r.demo) imp.demo = true;
+    if (r.app && !imp.app) imp.app = APPS.some(a => a.k === r.app) ? r.app : "other";
+    if (r.summaryEarnings) imp.summary = { orders: r.summaryOrders || null, earnings: r.summaryEarnings };
+    if (typeof r.missedCount === "number" && r.missedCount > 0) imp.missed = r.missedCount;
+    (r.trips || []).forEach(tr => {
+      if (!tr || !/^\d{4}-\d{2}-\d{2}$/.test(tr.date || "") || !/^\d{1,2}:\d{2}$/.test(tr.time || "") || !(tr.amount > 0)) return;
+      if (tr.status && tr.status !== "completed") return;
+      tr.time = tr.time.padStart(5, "0");
+      const k = keyOf(tr); if (seen.has(k)) return; seen.add(k);
+      imp.trips.push({ ...tr, keep: true });
+    });
+  });
+  imp.trips.sort((a, b) => tsOf(b.date, b.time) - tsOf(a.date, a.time));
+  if (!imp.trips.length) { impStep("impPick"); toast(t("noTrips")); return; }
+  planShifts();
+  renderReview(); impStep("impReview");
+}
+
+function renderReview() {
+  const kept = imp.trips.filter(x => x.keep), app = imp.app || "other";
+  const total = kept.reduce((s, x) => s + x.amount, 0);
+  $("rvApp").textContent = appName(app);
+  const dates = [...new Set(kept.map(x => x.date))];
+  $("rvDate").textContent = dates.map(d => new Date(d + "T12:00:00").toLocaleDateString(locale(), { weekday: "short", day: "numeric", month: "short" })).join(", ");
+  $("rvCount").textContent = fill(t("found"), { n: kept.length }) + (imp.missed ? " · " + fill(t("missed"), { n: imp.missed }) : "");
+  $("rvTotal").textContent = money2(total);
+
+  const existing = new Set(state.entries.filter(e => e.type === "trip").map(e => `${e.app}|${Math.round(e.ts / 60000)}|${Number(e.fare).toFixed(2)}`));
+  const isDup = x => existing.has(`${app}|${Math.round(tsOf(x.date, x.time) / 60000)}|${Number(x.amount).toFixed(2)}`);
+  const dups = kept.filter(isDup);
+
+  const ck = $("rvCheck"); ck.innerHTML = "";
+  const add = (cls, txt) => { const d = el("div", "check " + cls, txt); if (ck.children.length) d.style.marginTop = "8px"; ck.appendChild(d); };
+  if (imp.demo) add("warn", t("demoShot"));
+  if (imp.summary) {
+    const diff = imp.summary.earnings - total;
+    if (Math.abs(diff) < 0.5) add("ok", "✓ " + fill(t("matchOk"), { app: appName(app), t: money2(imp.summary.earnings) }));
+    else if (diff > 0) add("warn", "! " + fill(t("matchLess"), { app: appName(app), t: money2(imp.summary.earnings), d: money2(Math.round(diff * 100) / 100) }));
+  } else add("warn", t("noSummary"));
+  if (dups.length) add("warn", fill(t("dupSkipped"), { n: dups.length }));
+
+  const ul = $("rvList"); ul.innerHTML = "";
+  imp.trips.forEach(x => {
+    const li = el("li"), mid = el("div", "li-m"), amt = el("div", "li-a" + (x.keep ? " plus" : ""));
+    if (!x.keep) li.style.opacity = ".4";
+    li.appendChild(el("div", "li-t", x.time));
+    mid.append(el("b", "", x.pickupArea || appName(app)), el("span", "", [x.vehicle, dates.length > 1 ? x.date.slice(5) : null].filter(Boolean).join(" · ")));
+    amt.textContent = money2(x.amount);
+    const btn = el("button", "li-x", x.keep ? "×" : "↺"); btn.type = "button"; btn.setAttribute("aria-label", x.keep ? t("confirmDel") : "Undo");
+    btn.onclick = () => { x.keep = !x.keep; planShifts(); renderReview(); };
+    li.append(mid, amt, btn); ul.appendChild(li);
+  });
+
+  $("rvHours").classList.toggle("hidden", imp.haveSessions || !kept.length);
+  if (!imp.haveSessions && kept.length) {
+    $("rvHoursHint").textContent = fill(t("hoursHint"), { r: imp.shifts.map(s => `${hhmm(s.start)}–${hhmm(s.end)}`).join(", ") });
+    $("hrVal").textContent = `${imp.hours} ${t("hShort")}`;
+  }
+  imp.saveList = kept.filter(x => !isDup(x));
+  $("impSave").textContent = fill(t("saveImp"), { n: imp.saveList.length });
+  $("impSave").disabled = imp.saveList.length <= 0;
+}
+$("hrMinus").onclick = () => { imp.hours = Math.max(0.5, imp.hours - 0.5); renderReview(); };
+$("hrPlus").onclick = () => { imp.hours = Math.min(16, imp.hours + 0.5); renderReview(); };
+
+$("btnImp").onclick = () => { resetImp(); $("impErr").textContent = ""; impStep("impPick"); openSheet("sheetImp"); };
+$("impFile").onchange = e => { const files = [...e.target.files]; e.target.value = ""; readFiles(files); };
+$("impManual").onclick = () => { closeSheets(); $("btnTrip").click(); };
+$("impSave").onclick = async () => {
+  const app = imp.app || "other", list = imp.saveList || [];
+  if (!list.length) return;
+  $("impSave").disabled = true;
+  try {
+    for (const x of list) {
+      await store.addEntry({ type: "trip", app, fare: Math.round(x.amount * 100) / 100, pay: null, km: null, ts: tsOf(x.date, x.time),
+        area: x.pickupArea || null, source: "shot", vehicle: (state.cap.profile || {}).vehicle || null });
+    }
+    if (!imp.haveSessions && imp.shifts.length) {
+      // Fit the estimated shifts to the hours the captain confirmed by stretching or shrinking the last shift.
+      const shifts = imp.shifts.map(s => ({ ...s })), est = shifts.reduce((s, x) => s + (x.end - x.start), 0);
+      const last = shifts[shifts.length - 1];
+      last.end = Math.max(last.start + 15 * 60000, last.end + (imp.hours * 3600e3 - est));
+      for (const sh of shifts) { const end = Math.min(sh.end, Date.now()); await store.addEntry({ type: "session", app, start: sh.start, end, ts: end, est: true }); }
+    }
+    closeSheets();
+    $("doneTripH").textContent = fill(t("impDone"), { n: list.length });
+    $("doneTripP").textContent = `${appName(app)} · ${money2(list.reduce((s, x) => s + x.amount, 0))}`;
+    flash("doneTrip", 2000);
+    // Earlier days don't show on today's screen — open the weekly report instead.
+    if (list.every(x => tsOf(x.date, x.time) < dayStart())) setTimeout(() => { show("scrWeek"); renderWeek(); }, 2000);
+  } catch (e) { console.error(e); $("impErr").textContent = t("errSave"); }
+  $("impSave").disabled = false;
+};
+/* =========================================================
+   7. KAVACH — ride safety recorder
+   Every minute closes a standalone audio file (and, with the camera on, a video file).
+   Each file is hashed (SHA-256) and then sealed: AES-256-GCM with a fresh key, and that key
+   wrapped with Galla's RSA public key. The phone cannot open its own recordings.
+   Audio → uploaded straight away. Video → kept on the phone for 2 hours, uploaded only for a report.
+   ========================================================= */
+const KV = { SEG_MS: 60000, VIDEO_KEEP_MS: 2 * 3600e3, PAD_MS: 10 * 60000, MAX_AGE_MS: 7 * DAY, AUDIO_BPS: 24000, VIDEO_BPS: 300000, SOS_MS: 30 * 60000 };
+const REP_CATS = ["pay", "abuse", "sexual", "assault", "accident", "other"];
+const REP_WINS = [[30, "kvW30"], [60, "kvW60"], [120, "kvW120"], ["pick", "kvWPick"]];
+const SHIELD = (c, w = 26) => `<svg width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.6-3.4 8.3-8 9-4.6-.7-8-4.4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>`;
+const ICON = {
+  mic: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>',
+  cam: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>',
+  pin: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+};
+
+/* phone storage: "meta" (small records) + "blobs" (sealed files), same key */
+const kvDB = (() => {
+  let dbp;
+  const open = () => dbp ||= new Promise((res, rej) => {
+    const r = indexedDB.open("galla-kavach", 1);
+    r.onupgradeneeded = () => { r.result.createObjectStore("meta", { keyPath: "id" }); r.result.createObjectStore("blobs"); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  async function run(stores, mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(stores, mode); let out;
+      const r = fn(tx); if (r) r.onsuccess = () => { out = r.result; };
+      tx.oncomplete = () => res(out); tx.onerror = tx.onabort = () => rej(tx.error);
+    });
+  }
+  return {
+    add: (m, blob) => run(["meta", "blobs"], "readwrite", tx => { tx.objectStore("meta").put(m); tx.objectStore("blobs").put(blob, m.id); }),
+    metas: () => run(["meta"], "readonly", tx => tx.objectStore("meta").getAll()),
+    blob: id => run(["blobs"], "readonly", tx => tx.objectStore("blobs").get(id)),
+    del: id => run(["meta", "blobs"], "readwrite", tx => { tx.objectStore("meta").delete(id); tx.objectStore("blobs").delete(id); }),
+    /** Marks phone-only video inside [from, to] for upload. */
+    queueWindow: async (from, to) => {
+      let n = 0;
+      await run(["meta"], "readwrite", tx => {
+        const c = tx.objectStore("meta").openCursor();
+        c.onsuccess = () => {
+          const cur = c.result; if (!cur) return;
+          const m = cur.value;
+          if (m.kind === "video" && m.state === "local" && m.end >= from && m.start <= to) { cur.update({ ...m, state: "queued" }); n++; }
+          cur.continue();
+        };
+      });
+      return n;
+    }
+  };
+})();
+
+/* sealing */
+const b64 = buf => { let s = ""; const a = new Uint8Array(buf); for (let i = 0; i < a.length; i += 0x8000) s += String.fromCharCode(...a.subarray(i, i + 0x8000)); return btoa(s); };
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+let kvPub = null;
+async function kvKey() {
+  if (kvPub) return kvPub;
+  if (KAVACH_PUBLIC_KEY) return kvPub = await crypto.subtle.importKey("jwk", KAVACH_PUBLIC_KEY, { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
+  if (!DEMO) return null;
+  // Demo: a throwaway key whose private half is never kept, so demo recordings can't be opened by anyone.
+  const kp = await crypto.subtle.generateKey({ name: "RSA-OAEP", modulusLength: 3072, publicExponent: new Uint8Array([1, 0, 1]), hash: "SHA-256" }, false, ["encrypt", "decrypt"]);
+  return kvPub = kp.publicKey;
+}
+/** File format "GKV1": 4-byte magic, 4-byte header length, JSON header (times, GPS, SHA-256 of the recording, iv, wrapped key), then ciphertext. */
+async function seal(blob, head) {
+  const raw = await blob.arrayBuffer();
+  const hash = hex(await crypto.subtle.digest("SHA-256", raw));
+  const key = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, raw);
+  const wrapped = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, await kvKey(), await crypto.subtle.exportKey("raw", key));
+  const header = new TextEncoder().encode(JSON.stringify({ v: 1, ...head, hash, size: raw.byteLength, iv: b64(iv), key: b64(wrapped) }));
+  const pre = new Uint8Array(8); pre.set([0x47, 0x4B, 0x56, 0x31]); new DataView(pre.buffer).setUint32(4, header.length);
+  return { hash, size: raw.byteLength, pkg: new Blob([pre, header, ct], { type: "application/octet-stream" }) };
+}
+
+/* report windows that must keep their video (from reports filed on this phone) */
+const kvHolds = () => LS.get("gl_kv_holds", []).filter(h => h.to > Date.now() - KV.MAX_AGE_MS);
+const kvCovered = (a, b) => kvHolds().some(h => b >= h.from && a <= h.to);
+async function kvHold(from, to) { LS.set("gl_kv_holds", [...kvHolds(), { from, to }]); const n = await kvDB.queueWindow(from, to); kvPump(); return n; }
+
+function kvStat(bytes) { const d = new Date().toDateString(), s = LS.get("gl_kv_stat", {}); LS.set("gl_kv_stat", { day: d, bytes: (s.day === d ? s.bytes : 0) + bytes }); }
+const kvMB = () => { const s = LS.get("gl_kv_stat", {}); return s.day === new Date().toDateString() ? (s.bytes / 1048576).toFixed(1) : "0.0"; };
+const kvVideoOn = () => LS.get("gl_kv_video", true);
+const kvContacts = () => LS.get("gl_kv_contacts", []);
+const kvConsented = () => !!(LS.get("gl_kv_ok") || (state.cap.profile || {}).kavachOk);
+const pickMime = list => list.find(m => MediaRecorder.isTypeSupported(m)) || "";
+const clock = ms => { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? `${h}:${String(m).padStart(2, "0")}` : String(m)) + ":" + String(s % 60).padStart(2, "0"); };
+const ymd = ts => { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+
+const kv = { on: false, busy: false, stream: null, recs: [], startedAt: 0, pos: null, watchId: null, wake: null, hiddenAt: 0, tick: null, metas: [], reports: [] };
+
+/** Back-to-back recorders on one stream; each closes as a standalone, playable file every SEG_MS. */
+function segRecorder(stream, kind, opts) {
+  const o = { ...opts }; if (!o.mimeType) delete o.mimeType;
+  const run = { stop: false, cur: null, t: null };
+  const begin = () => {
+    const r = new MediaRecorder(stream, o), parts = [], start = Date.now();
+    r.ondataavailable = e => { if (e.data && e.data.size) parts.push(e.data); };
+    r.onstop = () => { if (parts.length) kvChunk(kind, start, Date.now(), new Blob(parts, { type: r.mimeType || o.mimeType || "" })); };
+    r.start();
+    run.cur = r;
+    // Start the next file first, then close this one: no gap between minutes.
+    run.t = setTimeout(() => { if (!run.stop) { begin(); r.stop(); } }, KV.SEG_MS);
+  };
+  begin();
+  return { stop() { run.stop = true; clearTimeout(run.t); if (run.cur && run.cur.state !== "inactive") run.cur.stop(); } };
+}
+
+async function kvChunk(kind, start, end, blob) {
+  try {
+    const id = `${start}-${kind}-${Math.random().toString(36).slice(2, 6) || "x"}`;
+    const p = kv.pos && Date.now() - kv.pos.t < 5 * 60000 ? kv.pos : null;
+    const head = { id, cid, kind, start, end, mime: blob.type, lat: p ? p.lat : null, lng: p ? p.lng : null, acc: p ? p.acc : null };
+    const s = await seal(blob, head);
+    const state = kind === "audio" || kvCovered(start, end) ? "queued" : "local";
+    await kvDB.add({ id, kind, start, end, hash: s.hash, size: s.pkg.size, state }, s.pkg);
+    store.kvRegister({ id, kind, start, end, hash: s.hash, size: s.size, lat: head.lat, lng: head.lng }).catch(console.error);
+    kvPump(); kvClean(); kvRefresh();
+  } catch (e) { console.error("kavach chunk", e); }
+}
+
+/** Uploads queued files oldest-first; anything that fails stays queued for the next try. */
+async function kvPump() {
+  if (kvPump.busy || !navigator.onLine || !store) return;
+  kvPump.busy = true;
+  try {
+    for (;;) {
+      const q = (await kvDB.metas()).filter(m => m.state === "queued").sort((a, b) => a.start - b.start);
+      if (!q.length) break;
+      const m = q[0], blob = await kvDB.blob(m.id);
+      if (blob) { await store.kvUpload(m.id, blob); kvStat(blob.size); }
+      await kvDB.del(m.id);
+      kvRefresh();
+    }
+  } catch (e) { console.warn("kavach upload paused", e); }
+  kvPump.busy = false;
+}
+
+async function kvClean() {
+  const now = Date.now();
+  for (const m of await kvDB.metas()) {
+    if (m.start < now - KV.MAX_AGE_MS || (m.kind === "video" && m.state === "local" && m.end < now - KV.VIDEO_KEEP_MS)) await kvDB.del(m.id);
+  }
+}
+async function kvRefresh() { try { kv.metas = await kvDB.metas(); } catch { kv.metas = []; } kvRender(); }
+
+async function kvWake() { try { if ("wakeLock" in navigator && !document.hidden) kv.wake = await navigator.wakeLock.request("screen"); } catch {} }
+
+async function kvStart() {
+  if (kv.on || kv.busy) return kv.on;
+  if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !(window.crypto && crypto.subtle) || !window.indexedDB) { toast(t(window.top !== window.self ? "kvEmbedded" : "kvNoSupport")); return false; }
+  kv.busy = true; kvRender();
+  try {
+    if (!(await kvKey())) { toast(t("kvNotSetup")); return false; }
+    // Inside another site's frame without camera/mic rights (e.g. a preview), say so instead of blaming the captain's settings.
+    const pol = document.permissionsPolicy || document.featurePolicy;
+    if (pol && pol.allowsFeature && !pol.allowsFeature("microphone")) { toast(t("kvEmbedded")); return false; }
+    const audio = { echoCancellation: false, noiseSuppression: true, autoGainControl: true };
+    let stream = null, camFail = false;
+    if (kvVideoOn()) {
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio, video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 20 } } }); }
+      catch (e) { camFail = true; }
+    }
+    if (!stream) {
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio }); }
+      catch (e) { toast(t(window.top !== window.self && e && e.name === "NotAllowedError" ? "kvEmbedded" : "kvPerm")); return false; }
+    }
+    if (camFail) toast(t("kvCamFail"));
+    kv.stream = stream;
+    const aMime = pickMime(["audio/webm;codecs=opus", "audio/ogg;codecs=opus", "audio/mp4"]);
+    const vMime = pickMime(["video/webm;codecs=vp8,opus", "video/webm", "video/mp4"]);
+    kv.recs = [segRecorder(new MediaStream(stream.getAudioTracks()), "audio", { mimeType: aMime, audioBitsPerSecond: KV.AUDIO_BPS })];
+    if (stream.getVideoTracks().length) kv.recs.push(segRecorder(stream, "video", { mimeType: vMime, videoBitsPerSecond: KV.VIDEO_BPS, audioBitsPerSecond: KV.AUDIO_BPS }));
+    stream.getTracks().forEach(tr => tr.addEventListener("ended", () => { if (kv.on && kv.stream === stream && !document.hidden) kvRestart(); }));
+    kv.on = true; kv.startedAt = Date.now(); LS.set("gl_kv_on", true);
+    if (stream.getVideoTracks().length) { const pv = $("kvPreview"); pv.srcObject = stream; pv.play().catch(() => {}); }
+    if (navigator.geolocation) kv.watchId = navigator.geolocation.watchPosition(
+      p => { kv.pos = { lat: +p.coords.latitude.toFixed(5), lng: +p.coords.longitude.toFixed(5), acc: Math.round(p.coords.accuracy), t: Date.now() }; },
+      () => {}, { enableHighAccuracy: true, maximumAge: 30000, timeout: 30000 });
+    kvWake();
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+    clearInterval(kv.tick); kv.tick = setInterval(kvTickUI, 1000);
+    return true;
+  } finally { kv.busy = false; kvRender(); }
+}
+
+function kvStop(restarting = false) {
+  if (!kv.on) return;
+  kv.recs.forEach(r => r.stop()); kv.recs = [];
+  const s = kv.stream; kv.stream = null;
+  setTimeout(() => s && s.getTracks().forEach(tr => tr.stop()), 400);   // let the last files close first
+  if (kv.watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(kv.watchId);
+  kv.watchId = null;
+  if (kv.wake) { kv.wake.release().catch(() => {}); kv.wake = null; }
+  clearInterval(kv.tick); kv.on = false;
+  if (!restarting) LS.set("gl_kv_on", false);
+  $("kvPreview").srcObject = null;
+  kvRender();
+}
+async function kvRestart() { kvStop(true); await new Promise(r => setTimeout(r, 600)); await kvStart(); }
+
+document.addEventListener("visibilitychange", () => {
+  if (!kv.on) return;
+  if (document.hidden) { kv.hiddenAt = Date.now(); return; }
+  const away = kv.hiddenAt ? Date.now() - kv.hiddenAt : 0; kv.hiddenAt = 0;
+  kvWake();
+  if (away > 5000) toast(fill(t("kvPaused"), { d: dur(away) }));
+  if (kv.stream && kv.stream.getTracks().some(tr => tr.readyState === "ended")) kvRestart();
+});
+
+/* ---------- kavach UI ---------- */
+function kvLinkRender() {
+  $("goKavach").classList.toggle("rec", kv.on);
+  const ic = $("kvLinkIc"); ic.innerHTML = "";
+  if (kv.on) ic.appendChild(el("span", "recdot")); else ic.innerHTML = SHIELD("#FFC629", 30);
+  ic.style.display = "flex";
+  $("kvLinkSub").textContent = kv.on ? fill(t("kvHomeOn"), { d: clock(Date.now() - kv.startedAt) }) : t("kvHomeOff");
+}
+function kvTickUI() {
+  kvLinkRender();
+  const c = $("kvClock"); if (c) c.textContent = clock(Date.now() - kv.startedAt);
+}
+
+function kvRender() {
+  kvLinkRender();
+  if (current !== "scrKavach") return;
+  const b = $("kvToggle"); b.classList.toggle("rec", kv.on); b.innerHTML = "";
+  if (kv.busy) b.append(el("span", "", t("kvStarting")));
+  else if (kv.on) { const tm = el("span", "kvtime", clock(Date.now() - kv.startedAt)); tm.id = "kvClock"; b.append(el("span", "recdot"), tm, el("span", "", t("kvStop"))); }
+  else { const ic = el("span"); ic.innerHTML = SHIELD("#FFC629", 52); b.append(ic, el("span", "", t("kvStart"))); }
+  b.setAttribute("aria-pressed", kv.on ? "true" : "false");
+  $("kvCam").classList.toggle("hidden", !(kv.on && kv.stream && kv.stream.getVideoTracks().length));
+  $("kvState").textContent = kv.on ? t("kvOnState") : t(kvVideoOn() ? "kvOffState" : "kvOffStateA");
+  $("kvKeepOpen").classList.toggle("hidden", !kv.on);
+  const bb = $("kvBanner"); bb.innerHTML = ""; if (DEMO) bb.appendChild(el("div", "banner demo", t("kvDemo")));
+
+  const ms = kv.metas;
+  const qa = ms.filter(m => m.kind === "audio" && m.state === "queued").length;
+  const qv = ms.filter(m => m.kind === "video" && m.state === "queued").length;
+  const lv = ms.filter(m => m.kind === "video" && m.state === "local").reduce((s, m) => s + (m.end - m.start), 0);
+  const rows = $("kvRows"); rows.innerHTML = "";
+  const row = (icon, title, sub) => {
+    const r = el("div", "kvrow"), ic = el("div", "ic"), tx = el("div", "tx");
+    ic.innerHTML = icon; tx.append(el("b", "", title)); if (sub) tx.append(el("span", "", sub));
+    r.append(ic, tx); rows.appendChild(r);
+  };
+  row(ICON.mic, t("kvAudioOk"), qa ? fill(t("kvAudioWait"), { n: qa }) : fill(t("kvAudioOkS"), { mb: kvMB() }));
+  row(ICON.cam, kvVideoOn() || lv || qv ? t("kvVideoOk") : t("kvVideoOff"), qv ? fill(t("kvVideoSend"), { n: qv }) : (kvVideoOn() || lv ? fill(t("kvVideoOkS"), { m: Math.round(lv / 60000) }) : ""));
+  row(ICON.pin, kv.on && !kv.pos ? t("kvGpsNo") : t("kvGpsOk"), t("kvSealS"));
+
+  const vb = $("kvVideoBtn"); vb.textContent = t(kvVideoOn() ? "kvOn" : "kvOff"); vb.className = "chip" + (kvVideoOn() ? " on" : "");
+  vb.setAttribute("aria-pressed", kvVideoOn() ? "true" : "false");
+  const cs = kvContacts(); $("kvContactsTxt").textContent = cs.length ? cs.join(", ") : t("kvContactsNone");
+
+  const ul = $("kvRepList"); ul.innerHTML = "";
+  if (!kv.reports.length) { const li = el("li"); li.appendChild(el("span", "muted", t("kvNoReports"))); ul.appendChild(li); }
+  kv.reports.forEach(r => {
+    const li = el("li"), mid = el("div", "li-m");
+    li.appendChild(el("div", "li-t", new Date(r.ts).toLocaleDateString(locale(), { day: "numeric", month: "short" }) + " " + hhmm(r.from)));
+    mid.append(el("b", "", t("kvC_" + r.cat)), el("span", "", t("kvSt_" + (r.status || "new"))));
+    li.appendChild(mid); ul.appendChild(li);
+  });
+}
+
+$("goKavach").onclick = () => { show("scrKavach"); kvRefresh(); };
+$("kvBack").onclick = () => { show("scrMain"); render._lastNet = null; shownNet = 0; render(); };
+$("kvToggle").onclick = async () => {
+  if (kv.busy) return;
+  if (kv.on) { kvStop(); return; }
+  if (!kvConsented()) { $("kvSticker").checked = false; $("kvIntroErr").textContent = ""; openSheet("sheetKvIntro"); return; }
+  await kvStart();
+};
+$("kvAgree").onclick = async () => {
+  if (!$("kvSticker").checked) { $("kvIntroErr").textContent = t("kvNeedSticker"); return; }
+  const at = Date.now(); LS.set("gl_kv_ok", at);
+  store.setProfile({ ...(state.cap.profile || {}), kavachOk: at });     // records that this captain accepted the notice terms
+  closeSheets(); await kvStart();
+};
+$("kvVideoBtn").onclick = () => { LS.set("gl_kv_video", !kvVideoOn()); if (kv.on) kvRestart(); else kvRender(); };
+
+/* contacts */
+const normPhone = s => { const d = String(s).replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, ""); return /^[6-9]\d{9}$/.test(d) ? d : null; };
+let ctFromSos = false;
+function openContacts(fromSos = false) {
+  ctFromSos = fromSos; const cs = kvContacts();
+  $("ct1").value = cs[0] || ""; $("ct2").value = cs[1] || ""; $("ctErr").textContent = "";
+  closeSheets(); openSheet("sheetContacts");
+}
+$("kvContactsBtn").onclick = () => openContacts(false);
+$("ctSave").onclick = () => {
+  const raw = [$("ct1").value, $("ct2").value].map(s => s.trim()).filter(Boolean), nums = raw.map(normPhone);
+  if (nums.some(n => !n)) { $("ctErr").textContent = t("kvBadPhone"); return; }
+  LS.set("gl_kv_contacts", [...new Set(nums)]);
+  closeSheets(); kvRender();
+  if (ctFromSos) { openSheet("sheetSos"); kvSmsLink(kv.pos); }
+};
+
+/* reports */
+let rep = { cat: null, win: 30 };
+function renderRep() {
+  const cb = $("repCats"); cb.innerHTML = "";
+  REP_CATS.forEach(c => {
+    const b = el("button", "chip" + (rep.cat === c ? " yon" : ""), (rep.cat === c ? "✓ " : "") + t("kvC_" + c));
+    b.type = "button"; b.style.minHeight = "54px"; b.style.textAlign = "left";
+    b.onclick = () => { rep.cat = c; $("repErr").textContent = ""; renderRep(); }; cb.appendChild(b);
+  });
+  const wb = $("repWins"); wb.innerHTML = "";
+  REP_WINS.forEach(([w, k]) => {
+    const b = el("button", "chip" + (rep.win === w ? " on" : ""), (rep.win === w ? "✓ " : "") + t(k));
+    b.type = "button"; b.onclick = () => { rep.win = w; $("repErr").textContent = ""; renderRep(); }; wb.appendChild(b);
+  });
+  $("repTime").classList.toggle("hidden", rep.win !== "pick");
+}
+async function kvFile(cat, from, to, note) {
+  await kvHold(from - KV.PAD_MS, to + KV.PAD_MS);
+  const p = kv.pos;
+  await store.addReport({ cat, note: note || "", from, to, ts: Date.now(), status: "new", vehicle: (state.cap.profile || {}).vehicle || null, lat: p ? p.lat : null, lng: p ? p.lng : null });
+  kvRefresh();
+}
+$("kvRepBtn").onclick = () => { rep = { cat: null, win: 30 }; $("repNote").value = ""; $("repTime").value = ""; $("repErr").textContent = ""; renderRep(); openSheet("sheetReport"); };
+$("repSend").onclick = async () => {
+  if (!rep.cat) { $("repErr").textContent = t("kvRepNeed"); return; }
+  const now = Date.now(); let from, to;
+  if (rep.win === "pick") {
+    const v = $("repTime").value;
+    if (!/^\d{2}:\d{2}$/.test(v)) { $("repErr").textContent = t("kvRepTime"); return; }
+    let at = tsOf(ymd(now), v); if (at > now) at -= DAY;
+    from = at - 15 * 60000; to = Math.min(now, at + 15 * 60000);
+  } else { from = now - rep.win * 60000; to = now; }
+  $("repSend").disabled = true;
+  try {
+    await kvFile(rep.cat, from, to, $("repNote").value.trim().slice(0, 500));
+    closeSheets();
+    $("doneExpH").textContent = t("kvRepDone"); $("doneExpP").textContent = t("kvRepDoneP");
+    flash("doneExp", 2800);
+  } catch (e) { console.error(e); $("repErr").textContent = t("errSave"); }
+  $("repSend").disabled = false;
+};
+
+/* SOS */
+function kvLocate() {
+  return new Promise(res => {
+    if (!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition(p => res({ lat: +p.coords.latitude.toFixed(5), lng: +p.coords.longitude.toFixed(5), t: Date.now() }), () => res(null), { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  });
+}
+function kvSmsLink(p, searching = false) {
+  const nums = kvContacts(), a = $("sosSms");
+  $("sosLoc").textContent = p ? `${p.lat}, ${p.lng}` : t(searching ? "kvSosLoc" : "kvGpsNo");
+  if (!nums.length) { a.href = "#"; a.onclick = e => { e.preventDefault(); openContacts(true); }; return; }
+  a.onclick = null;
+  const u = p ? `https://maps.google.com/?q=${p.lat},${p.lng}` : "—";
+  a.href = `sms:${nums.join(",")}?body=${encodeURIComponent(fill(t("kvSosMsg"), { u, c: cid }))}`;
+}
+$("kvSosBtn").onclick = async () => {
+  kvSmsLink(kv.pos, true); $("sosNote").classList.add("hidden");
+  openSheet("sheetSos");
+  const ok = kv.on || await kvStart();   // an emergency skips the intro sheet
+  const now = Date.now();
+  kvFile("sos", now - KV.SOS_MS, now + KV.SOS_MS, "").catch(console.error);
+  $("sosNote").classList.toggle("hidden", !ok);
+  const p = kv.pos || await kvLocate();
+  if (p) kv.pos = kv.pos || p;
+  kvSmsLink(p);
+};
+
+/* ---------- setup ---------- */
+function renderSetup() {
+  const lb = $("setLang"); lb.innerHTML = "";
+  LANGS.forEach(([k, n]) => {
+    const b = el("button", "chip" + (lang === k ? " on" : ""), n); b.type = "button";
+    b.onclick = () => { lang = k; LS.set("gl_lang", k); applyLang(); }; lb.appendChild(b);
+  });
+  const vb = $("setVeh"); vb.innerHTML = "";
+  VEHICLES.forEach(v => {
+    const sel = setupDraft.vehicle === v.k, b = el("button", "veh" + (sel ? " sel" : ""));
+    b.type = "button"; b.setAttribute("aria-pressed", sel ? "true" : "false");
+    const img = el("img"); img.src = v.img; img.alt = ""; img.width = 96; img.height = 96;
+    b.append(img, el("span", "", (sel ? "✓ " : "") + t(v.k)));
+    b.onclick = () => { setupDraft.vehicle = v.k; $("setErr").textContent = ""; renderSetup(); }; vb.appendChild(b);
+  });
+  const ab = $("setApps"); ab.innerHTML = "";
+  APPS.forEach(a => {
+    const sel = setupDraft.apps.includes(a.k), b = el("button", "chip" + (sel ? " on" : ""), (sel ? "✓ " : "") + appName(a.k));
+    b.type = "button"; b.setAttribute("aria-pressed", sel ? "true" : "false");
+    b.onclick = () => { setupDraft.apps = sel ? setupDraft.apps.filter(x => x !== a.k) : [...setupDraft.apps, a.k]; $("setErr").textContent = ""; renderSetup(); };
+    ab.appendChild(b);
+  });
+}
+$("setSave").onclick = async () => {
+  if (!setupDraft.vehicle) { $("setErr").textContent = t("pickVehicle"); return; }
+  if (!setupDraft.apps.length) { $("setErr").textContent = t("pickApps"); return; }
+  await store.setProfile({ vehicle: setupDraft.vehicle, apps: setupDraft.apps, lang });
+  show("scrMain"); render._lastNet = null; shownNet = 0; render();
+};
+$("editSetup").onclick = () => { const p = state.cap.profile || {}; setupDraft = { vehicle: p.vehicle || null, apps: [...(p.apps || [])] }; show("scrSetup"); renderSetup(); };
+
+/* ---------- language, network, day change ---------- */
+$("langSel").onchange = e => { lang = e.target.value; LS.set("gl_lang", lang); applyLang(); };
+window.addEventListener("online", renderBanners); window.addEventListener("offline", renderBanners);
+const todayKey = new Date().toDateString();
+// New day: reload for fresh totals, but never while Kavach is recording.
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !kv.on && new Date().toDateString() !== todayKey) location.reload(); });
+window.addEventListener("online", () => kvPump());
+setInterval(() => { kvPump(); }, 30000);
+setInterval(() => { kvClean().then(kvRefresh).catch(() => {}); }, 5 * 60000);
+setInterval(() => { if (current === "scrMain") render(); }, 30000);
+
+/* ---------- offline app shell ---------- */
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
+/* ---------- boot ---------- */
+(async function boot() {
+  applyLang();
+  const param = new URLSearchParams(location.search).get("c");
+  cid = (param || LS.get("gl_cid") || (DEMO ? "DEMO1234" : "")).trim();
+  if (!/^[A-Za-z0-9]{6,20}$/.test(cid)) { message(t("noCode")); return; }
+  LS.set("gl_cid", cid);
+  $("codeLabel").textContent = `${t("yourCode")}: ${cid}`;
+  store = DEMO ? new LocalStore(cid) : new FireStore(cid);
+  let res;
+  try { res = await store.init(); } catch (e) { console.error(e); res = navigator.onLine ? "error" : "needNet"; }
+  if (res === "needNet") { message(t("firstNet")); return; }
+  if (res === "claimed") { message(t("claimed") + (SUPPORT_PHONE ? " " + SUPPORT_PHONE : "")); return; }
+  if (res !== "ok") { message(t("errSave")); return; }
+  let first = true;
+  store.subscribe(s => {
+    state = s;
+    if (first) {
+      first = false;
+      const p = state.cap.profile;
+      if (p && p.lang && !LS.get("gl_lang")) { lang = p.lang; applyLang(); }
+      store.watchReports(r => { kv.reports = r; kvRender(); });
+      kvClean().then(kvRefresh).then(kvPump).catch(console.error);
+      if (!p) { setupDraft = { vehicle: null, apps: [] }; show("scrSetup"); renderSetup(); return; }
+      show("scrMain");
+      // Was recording when the page closed or reloaded: pick up again (works once camera/mic permission is granted).
+      if (LS.get("gl_kv_on") && kvConsented()) kvStart();
+    }
+    render();
+  });
+})();
+</script>
+</body>
+</html>

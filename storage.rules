@@ -1,0 +1,18 @@
+rules_version = '2';
+// Galla Kavach recordings. Phones can only ADD encrypted files under their own captain code.
+// Nobody can read, list, replace or delete them from the app — only the admin tool (service account) can.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /kavach/{cid}/{file} {
+      allow create: if request.auth != null
+        && firestore.get(/databases/(default)/documents/captains/$(cid)).data.uid == request.auth.uid
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType == 'application/octet-stream'
+        && file.matches('^[0-9]{13}-(audio|video)-[a-z0-9]{1,8}[.]gkv$');
+      allow read, update, delete: if false;
+    }
+    match /{all=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // True when the signed-in phone owns this captain code.
+    function owns(cid) {
+      return request.auth != null
+        && get(/databases/$(database)/documents/captains/$(cid)).data.uid == request.auth.uid;
+    }
+
+    match /captains/{cid} {
+      // A phone can read only the captain code it claimed.
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+
+      // First open of a personal link claims the code for that phone.
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid
+        && cid.matches('^[A-Za-z0-9]{6,20}$');
+
+      // Owner can update profile / online state, but never hand the code to another phone.
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == resource.data.uid;
+
+      allow delete: if false;
+
+      match /entries/{eid} {
+        allow read, delete: if owns(cid);
+        allow create, update: if owns(cid)
+          && request.resource.data.type in ['trip', 'expense', 'session']
+          && request.resource.data.ts is number;
+      }
+
+      // Kavach hash registry: one record per recorded minute. The phone can add records, never read, change or delete them.
+      // Deleted automatically through a TTL policy on expireAt (see SETUP.md).
+      match /kavach/{kid} {
+        allow create: if owns(cid)
+          && request.resource.data.keys().hasOnly(['id', 'kind', 'start', 'end', 'hash', 'size', 'lat', 'lng', 'expireAt', 'createdAt'])
+          && request.resource.data.kind in ['audio', 'video']
+          && request.resource.data.hash is string && request.resource.data.hash.size() == 64
+          && request.resource.data.start is number;
+        allow read, update, delete: if false;
+      }
+
+      // Safety reports: the captain files them and sees their status. Only Galla (admin tool) changes them.
+      match /reports/{rid} {
+        allow read: if owns(cid);
+        allow create: if owns(cid)
+          && request.resource.data.status == 'new'
+          && request.resource.data.cat in ['pay', 'abuse', 'sexual', 'assault', 'accident', 'other', 'sos']
+          && request.resource.data.from is number && request.resource.data.to is number
+          && request.resource.data.note is string && request.resource.data.note.size() <= 500;
+        allow update, delete: if false;
+      }
+    }
+  }
+}
