@@ -490,6 +490,8 @@
       <div class="card hidden" id="stNativeCard" style="margin-top:12px">
         <div class="kvrow"><div class="tx"><b data-t="remindQ"></b><span data-t="remindHint"></span></div>
           <button class="chip" id="stRemind" style="min-width:72px"></button></div>
+        <div class="kvrow"><div class="tx"><b data-t="autoQ"></b><span id="stAutoTxt"></span></div>
+          <button class="chip" id="stAuto" style="min-width:72px"></button></div>
       </div>
       <div class="h3"><span data-t="aboutT"></span></div>
       <div class="card">
@@ -594,6 +596,7 @@
       </div>
       <label class="btn y" for="impFile" style="margin-top:12px;cursor:pointer"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span data-t="pickShots"></span></label>
       <input type="file" id="impFile" accept="image/*" multiple hidden>
+      <div class="check ok hidden" style="margin-top:10px" id="impShareTip" data-t="shareTip"></div>
       <div class="fine" style="margin-top:10px" data-t="shotPrivacy"></div>
       <div style="display:flex;justify-content:center"><button class="linkbtn" id="impManual" data-t="orManual"></button></div>
     </div>
@@ -675,6 +678,26 @@
     <input type="tel" class="field" id="ct2" inputmode="tel" maxlength="17" placeholder="98XXXXXXXX" autocomplete="off">
     <div class="serr" id="ctErr"></div>
     <button class="btn k" id="ctSave" data-t="kvSaveContacts"></button>
+  </div>
+</div>
+
+<div class="sheet" id="sheetAuto" role="dialog" aria-modal="true" aria-labelledby="autoTitle">
+  <div class="sheet-in">
+    <div class="grab"></div>
+    <div class="shead"><div class="t"><img src="assets/icon-96.png" alt=""><span id="autoTitle" data-t="autoTitle"></span></div>
+      <button class="xbtn" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="card how" style="font-size:14px" data-t="autoIntro"></div>
+    <div class="check warn hidden" id="autoOff"><span data-t="autoOffTxt"></span></div>
+    <button class="btn y hidden" id="autoAllow" data-t="autoAllow" style="font-size:19px"></button>
+    <div class="h3" style="margin:4px 0 0"><span data-t="autoOnline"></span><small data-t="autoOnlineHint"></small></div>
+    <div class="card"><ul class="list" id="autoSessions"></ul></div>
+    <div class="h3" style="margin:4px 0 0"><span data-t="autoSeen"></span><small id="autoCount"></small></div>
+    <div class="card"><ul class="list" id="autoList"></ul></div>
+    <div class="grid2">
+      <button class="btn k2" id="autoShare" style="font-size:17px" data-t="autoShare"></button>
+      <button class="btn" id="autoClear" style="font-size:17px;background:var(--card)" data-t="autoClear"></button>
+    </div>
+    <div class="fine" data-t="autoPrivacy"></div>
   </div>
 </div>
 
@@ -946,6 +969,24 @@ const T = {
   kvSosNote:  { hi: "कवच रिकॉर्डिंग चालू है और Galla टीम को रिपोर्ट चली गई है।", mr: "कवच रेकॉर्डिंग चालू आहे आणि Galla टीमला रिपोर्ट गेला आहे.", gu: "કવચ રેકોર્ડિંગ ચાલુ છે અને Galla ટીમને રિપોર્ટ ગયો છે.", en: "Kavach is recording and a report has gone to the Galla team." },
   kvSosLoc:   { hi: "लोकेशन ढूँढ रहे हैं…", mr: "लोकेशन शोधत आहोत…", gu: "લોકેશન શોધીએ છીએ…", en: "Finding your location…" },
   kvSosMsg:   { hi: "SOS! मुझे तुरंत मदद चाहिए। मेरी लोकेशन: {u} (Galla कैप्टन {c})", mr: "SOS! मला लगेच मदत हवी आहे. माझे लोकेशन: {u} (Galla कॅप्टन {c})", gu: "SOS! મને તરત મદદ જોઈએ છે. મારું લોકેશન: {u} (Galla કૅપ્ટન {c})", en: "SOS! I need help now. My location: {u} (Galla captain {c})" },
+  autoQ:      { hi: "स्वचालित हिसाब (टेस्ट)", mr: "स्वयंचलित हिशोब (टेस्ट)", gu: "આપમેળે હિસાબ (ટેસ્ટ)", en: "Automatic earnings (test)" },
+  autoOnTxt:  { hi: "चालू — {n} सूचनाएं देखीं", mr: "चालू — {n} सूचना पाहिल्या", gu: "ચાલુ — {n} સૂચનાઓ જોઈ", en: "On — {n} notifications seen" },
+  autoOffShort:{ hi: "बंद · ऐप की सूचनाओं से ऑनलाइन घंटे और राइड", mr: "बंद · अ‍ॅपच्या सूचनांमधून ऑनलाइन तास आणि राईड", gu: "બંધ · એપની સૂચનાઓ પરથી ઑનલાઇન કલાક અને રાઇડ", en: "Off · online hours and trips from app notifications" },
+  autoSee:    { hi: "देखें", mr: "पहा", gu: "જુઓ", en: "View" },
+  autoTitle:  { hi: "Galla ने क्या देखा", mr: "Galla ने काय पाहिले", gu: "Galla એ શું જોયું", en: "What Galla saw" },
+  autoIntro:  { hi: "टेस्ट: Rapido, Uber, Ola जैसे ऐप की सूचनाएं (ऑनलाइन, राइड पूरी, पेमेंट) यहाँ दिखती हैं। इनसे हम सीखेंगे कि ऑनलाइन घंटे और राइड अपने-आप कैसे लिखें। दूसरे ऐप की सूचनाएं नहीं पढ़ी जातीं।", mr: "टेस्ट: Rapido, Uber, Ola सारख्या अ‍ॅपच्या सूचना (ऑनलाइन, राईड पूर्ण, पेमेंट) इथे दिसतात. यातून आम्ही ऑनलाइन तास आणि राईड आपोआप कसे लिहायचे ते शिकू. इतर अ‍ॅपच्या सूचना वाचल्या जात नाहीत.", gu: "ટેસ્ટ: Rapido, Uber, Ola જેવી એપની સૂચનાઓ (ઑનલાઇન, રાઇડ પૂરી, પેમેન્ટ) અહીં દેખાય છે. તેનાથી અમે શીખીશું કે ઑનલાઇન કલાક અને રાઇડ આપમેળે કેવી રીતે લખવી. બીજી એપની સૂચનાઓ વાંચવામાં આવતી નથી.", en: "Test: notifications from ride apps like Rapido, Uber and Ola (online, trip done, payment) show here. They teach us how to log online hours and trips automatically. Other apps' notifications are never read." },
+  autoOffTxt: { hi: "सूचना पढ़ने की अनुमति बंद है। नीचे दबाएं → Galla चालू करें → वापस आएं।", mr: "सूचना वाचण्याची परवानगी बंद आहे. खाली दाबा → Galla चालू करा → परत या.", gu: "સૂચના વાંચવાની પરવાનગી બંધ છે. નીચે દબાવો → Galla ચાલુ કરો → પાછા આવો.", en: "Notification access is off. Tap below → switch on Galla → come back." },
+  autoAllow:  { hi: "अनुमति दें", mr: "परवानगी द्या", gu: "પરવાનગી આપો", en: "Allow access" },
+  autoOnline: { hi: "ऑनलाइन रहे (अंदाज़)", mr: "ऑनलाइन होतात (अंदाज)", gu: "ઑનલાઇન રહ્યા (અંદાજ)", en: "Online (estimate)" },
+  autoOnlineHint:{ hi: "ऐप की लगातार दिखने वाली सूचना से", mr: "अ‍ॅपच्या सतत दिसणाऱ्या सूचनेवरून", gu: "એપની સતત દેખાતી સૂચના પરથી", en: "from the app's permanent notification" },
+  autoSeen:   { hi: "देखी गई सूचनाएं", mr: "पाहिलेल्या सूचना", gu: "જોયેલી સૂચનાઓ", en: "Notifications seen" },
+  autoNone:   { hi: "अभी कुछ नहीं — ऐप ऑन करके एक राइड पूरी करें", mr: "अजून काही नाही — अ‍ॅप चालू करून एक राईड पूर्ण करा", gu: "હજુ કંઈ નથી — એપ ચાલુ કરીને એક રાઇડ પૂરી કરો", en: "Nothing yet — go online and finish a trip" },
+  autoShare:  { hi: "Galla टीम को भेजें", mr: "Galla टीमला पाठवा", gu: "Galla ટીમને મોકલો", en: "Send to Galla team" },
+  autoClear:  { hi: "साफ़ करें", mr: "साफ करा", gu: "સાફ કરો", en: "Clear" },
+  autoCleared:{ hi: "साफ़ कर दिया", mr: "साफ केले", gu: "સાફ કર્યું", en: "Cleared" },
+  autoPrivacy:{ hi: "यह सूची सिर्फ़ इस फ़ोन में है, 3 दिन में अपने-आप मिटती है। भेजने से पहले देख लें — इसमें सवारी का नाम/पता हो सकता है।", mr: "ही यादी फक्त या फोनमध्ये आहे, 3 दिवसांत आपोआप पुसली जाते. पाठवण्याआधी पहा — यात प्रवाशाचे नाव/पत्ता असू शकतो.", gu: "આ યાદી ફક્ત આ ફોનમાં છે, 3 દિવસમાં આપમેળે ભૂંસાય છે. મોકલતા પહેલાં જુઓ — તેમાં સવારીનું નામ/સરનામું હોઈ શકે.", en: "This list stays on this phone and clears itself after 3 days. Check before sending — it may contain a rider's name or address." },
+  autoNow:    { hi: "अभी तक", mr: "आतापर्यंत", gu: "હજુ સુધી", en: "now" },
+  shareTip:   { hi: "आसान तरीका: स्क्रीनशॉट लेते ही 'Share' → Galla दबाएं। गैलरी से कई स्क्रीनशॉट एक साथ भी Share कर सकते हैं।", mr: "सोपा मार्ग: स्क्रीनशॉट घेताच 'Share' → Galla दाबा. गॅलरीतून अनेक स्क्रीनशॉट एकत्र Share करू शकता.", gu: "સહેલો રસ્તો: સ્ક્રીનશૉટ લેતાં જ 'Share' → Galla દબાવો. ગૅલેરીમાંથી ઘણા સ્ક્રીનશૉટ એકસાથે Share કરી શકો.", en: "Easier: right after taking a screenshot, tap 'Share' → Galla. You can also share several from the gallery at once." },
   remindBody: { hi: "आज के स्क्रीनशॉट डालें — 1 मिनट लगेगा", mr: "आजचे स्क्रीनशॉट टाका — 1 मिनिट लागेल", gu: "આજના સ્ક્રીનશૉટ નાખો — 1 મિનિટ લાગશે", en: "Add today's screenshots — takes 1 minute" },
   kvCamCheck: { hi: "कैमरा जाँच", mr: "कॅमेरा तपासणी", gu: "કૅમેરા તપાસ", en: "CHECK" },
   kvRecording:{ hi: "रिकॉर्डिंग चालू है", mr: "रेकॉर्डिंग चालू आहे", gu: "રેકોર્ડિંગ ચાલુ છે", en: "Recording is on" },
@@ -1669,7 +1710,7 @@ function renderReview() {
 $("hrMinus").onclick = () => { imp.hours = Math.max(0.5, imp.hours - 0.5); renderReview(); };
 $("hrPlus").onclick = () => { imp.hours = Math.min(16, imp.hours + 0.5); renderReview(); };
 
-$("btnImp").onclick = () => { resetImp(); $("impErr").textContent = ""; impStep("impPick"); openSheet("sheetImp"); };
+$("btnImp").onclick = () => { $("impShareTip").classList.toggle("hidden", !NATIVE); resetImp(); $("impErr").textContent = ""; impStep("impPick"); openSheet("sheetImp"); };
 $("impFile").onchange = e => { const files = [...e.target.files]; e.target.value = ""; readFiles(files); };
 $("impManual").onclick = () => { closeSheets(); $("btnTrip").click(); };
 $("impSave").onclick = async () => {
@@ -2182,6 +2223,11 @@ function renderSettings() {
   $("stNativeCard").classList.toggle("hidden", !NATIVE);
   const rb = $("stRemind"), ron = LS.get("gl_remind", false);
   rb.textContent = t(ron ? "kvOn" : "kvOff"); rb.className = "chip" + (ron ? " on" : ""); rb.setAttribute("aria-pressed", ron ? "true" : "false");
+  if (NATIVE && NATIVE.notifAccess) {
+    const on = !!NATIVE.notifAccess(), ab = $("stAuto");
+    $("stAutoTxt").textContent = on ? fill(t("autoOnTxt"), { n: autoLog().length }) : t("autoOffShort");
+    ab.textContent = t(on ? "autoSee" : "kvOff"); ab.className = "chip" + (on ? " on" : "");
+  }
   $("stCode").textContent = cid;
   $("stSupportRow").classList.toggle("hidden", !SUPPORT_PHONE);
   $("stSupport").textContent = SUPPORT_PHONE;
@@ -2197,6 +2243,59 @@ $("stRemind").onclick = () => {
   renderSettings();
 };
 $("stKavach").onclick = () => { show("scrKavach"); kvRefresh(); };
+$("stAuto").onclick = () => openAuto();
+
+/* ---------- automatic earnings: test mode (Android app) ---------- */
+function autoLog() { try { return JSON.parse(NATIVE.notifLog()) || []; } catch { return []; } }
+/** Stretches of time each ride app kept a permanent ("ongoing") notification up — usually while online. */
+function autoSessions(log) {
+  const byKey = {}, out = [];
+  log.forEach(e => {
+    if (!e.ongoing && e.ev !== "removed") return;
+    const k = e.key || e.pkg, cur = byKey[k];
+    if (e.ev === "removed") { if (cur) { cur.end = e.t; out.push(cur); delete byKey[k]; } return; }
+    if (!cur) byKey[k] = { app: e.app || e.pkg, start: e.t, end: null, title: e.title };
+  });
+  Object.values(byKey).forEach(x => out.push(x));
+  return out.filter(x => (x.end || Date.now()) - x.start >= 60000).sort((a, b) => b.start - a.start);
+}
+function renderAuto() {
+  const on = !!NATIVE.notifAccess(), log = autoLog();
+  $("autoOff").classList.toggle("hidden", on); $("autoAllow").classList.toggle("hidden", on);
+  const when = ts => (ts < dayStart() ? new Date(ts).toLocaleDateString(locale(), { day: "numeric", month: "short" }) + " " : "") + hhmm(ts);
+  const ss = $("autoSessions"); ss.innerHTML = "";
+  const sess = autoSessions(log);
+  if (!sess.length) { const li = el("li"); li.appendChild(el("span", "muted", t("autoNone"))); ss.appendChild(li); }
+  sess.slice(0, 20).forEach(x => {
+    const li = el("li"), mid = el("div", "li-m");
+    li.appendChild(el("div", "li-t", when(x.start)));
+    mid.append(el("b", "", x.app), el("span", "", `${hhmm(x.start)}–${x.end ? hhmm(x.end) : t("autoNow")} · ${x.title || ""}`));
+    li.append(mid, el("div", "li-a", dur((x.end || Date.now()) - x.start))); ss.appendChild(li);
+  });
+  const ul = $("autoList"); ul.innerHTML = "";
+  $("autoCount").textContent = log.length ? String(log.length) : "";
+  if (!log.length) { const li = el("li"); li.appendChild(el("span", "muted", t("autoNone"))); ul.appendChild(li); }
+  log.slice(-120).reverse().forEach(e => {
+    const li = el("li"), mid = el("div", "li-m"), nm = el("b", "", e.app || e.pkg);
+    if (e.ongoing) nm.appendChild(el("span", "tag", "ongoing"));
+    if (e.ev === "removed") nm.appendChild(el("span", "tag", "removed"));
+    mid.append(nm, el("span", "", [e.title, e.text || e.big].filter(Boolean).join(" — ")));
+    li.append(el("div", "li-t", when(e.t)), mid); ul.appendChild(li);
+  });
+}
+function openAuto() { renderAuto(); openSheet("sheetAuto"); }
+$("autoAllow").onclick = () => NATIVE.notifSettings();
+$("autoClear").onclick = () => { if (confirm(t("autoClear") + "?")) { NATIVE.notifClear(); renderAuto(); toast(t("autoCleared")); } };
+$("autoShare").onclick = () => {
+  const d = ts => new Date(ts).toLocaleString("en-IN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+  const lines = autoLog().slice(-300).map(e => [d(e.t), e.app, e.pkg, e.ev, e.ongoing ? "ongoing" : "", e.cat, e.title, e.text, e.big !== e.text ? e.big : ""].join(" | "));
+  NATIVE.shareText(`Galla notification test · ${cid} · Android app ${NATIVE.version ? NATIVE.version() : ""}\n` + lines.join("\n"));
+};
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden || !NATIVE || !NATIVE.notifAccess) return;
+  if ($("sheetAuto").classList.contains("open")) renderAuto();
+  if (current === "scrSettings") renderSettings();
+});
 function openSettings() { $("stErr").textContent = ""; show("scrSettings"); renderSettings(); }
 $("goSettings").onclick = openSettings;
 $("editSetup").onclick = openSettings;
@@ -2237,6 +2336,15 @@ function kvPreviewSync(force) {
 window.gallaPreviewSync = () => kvPreviewSync(true);
 addEventListener("scroll", () => requestAnimationFrame(() => kvPreviewSync()), { passive: true });
 addEventListener("resize", () => kvPreviewSync());
+// "Share → Galla" from the gallery or the screenshot toast: images arrive already shrunk, as data URLs.
+window.gallaImportShared = async urls => {
+  for (let i = 0; i < 50 && !(store && state.cap && state.cap.profile); i++) await new Promise(r => setTimeout(r, 300));
+  if (!(store && state.cap && state.cap.profile)) return;
+  const files = await Promise.all(urls.map(async (u, i) => new File([await (await fetch(u)).blob()], `shared-${i}.jpg`, { type: "image/jpeg" })));
+  if (current !== "scrMain") show("scrMain");
+  closeSheets(); resetImp(); $("impErr").textContent = ""; impStep("impPick"); openSheet("sheetImp");
+  readFiles(files);
+};
 window.gallaNativeSOS = () => { show("scrKavach"); kvRefresh(); $("kvSosBtn").click(); };
 if (NATIVE) {
   setInterval(kvNativePoll, 2000);

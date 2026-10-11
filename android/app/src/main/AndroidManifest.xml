@@ -38,7 +38,29 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- "Share → Galla" straight after taking a screenshot of the ride app's order list. -->
+            <intent-filter android:label="Galla">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+            <intent-filter android:label="Galla">
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
         </activity>
+
+        <!-- Test mode for automatic earnings: reads ride-app notifications, only with the captain's permission. -->
+        <service
+            android:name=".RideNotifListener"
+            android:exported="true"
+            android:label="Galla"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <!-- Records Kavach while other apps (Rapido, Maps) are on screen. -->
         <service

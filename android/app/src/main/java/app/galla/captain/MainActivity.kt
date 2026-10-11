@@ -5,12 +5,16 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Outline
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Base64
 import android.text.InputType
 import android.view.Gravity
 import android.view.View
@@ -37,6 +41,10 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
+import org.json.JSONArray
+import java.io.ByteArrayOutputStream
+import java.util.concurrent.Executors
 import org.json.JSONObject
 
 /**
@@ -61,6 +69,10 @@ class MainActivity : AppCompatActivity() {
     private var lastPreview: JSONObject? = null
     private var askedCamera = false
 
+    // Screenshots shared to Galla from the gallery / screenshot toast, waiting for the page to be ready.
+    private var sharedUris: List<Uri> = emptyList()
+    private val bg = Executors.newSingleThreadExecutor()
+
     private val pickImages = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         fileCallback?.onReceiveValue(uris.toTypedArray()); fileCallback = null
     }
@@ -83,6 +95,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sosWaiting = intent?.getBooleanExtra(EXTRA_SOS, false) == true
+        intent?.let { takeShared(it) }
         val code = Prefs.code(this)
         if (code.isNullOrBlank()) showCodeScreen() else showWeb(code)
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -109,7 +122,45 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra(EXTRA_SOS, false)) { sosWaiting = true; runSosIfReady() }
+        takeShared(intent); deliverShared()
     }
+
+    /* ---------- "Share → Galla" ---------- */
+
+    private fun takeShared(i: Intent) {
+        val uris = when (i.action) {
+            Intent.ACTION_SEND -> listOfNotNull(IntentCompat.getParcelableExtra(i, Intent.EXTRA_STREAM, Uri::class.java))
+            Intent.ACTION_SEND_MULTIPLE -> IntentCompat.getParcelableArrayListExtra(i, Intent.EXTRA_STREAM, Uri::class.java) ?: emptyList()
+            else -> emptyList()
+        }
+        if (uris.isNotEmpty()) sharedUris = uris.take(8)
+    }
+
+    /** Shrinks each shared image (720 px JPEG, like the web app does) and hands them to the screenshot import. */
+    private fun deliverShared() {
+        val w = web ?: return
+        if (!pageReady || sharedUris.isEmpty()) return
+        val uris = sharedUris; sharedUris = emptyList()
+        bg.execute {
+            val urls = JSONArray()
+            uris.forEach { u -> shrink(u)?.let { urls.put(it) } }
+            if (urls.length() > 0) runOnUiThread { w.evaluateJavascript("window.gallaImportShared && window.gallaImportShared($urls)", null) }
+        }
+    }
+
+    private fun shrink(u: Uri): String? = try {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        contentResolver.openInputStream(u)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        var sample = 1
+        while (bounds.outWidth / (sample * 2) >= 720) sample *= 2
+        val bmp = contentResolver.openInputStream(u)?.use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = sample }) }
+        if (bmp == null) null else {
+            val scaled = if (bmp.width > 720) Bitmap.createScaledBitmap(bmp, 720, (bmp.height * 720f / bmp.width).toInt(), true) else bmp
+            val out = ByteArrayOutputStream()
+            scaled.compress(Bitmap.CompressFormat.JPEG, 82, out)
+            "data:image/jpeg;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
+        }
+    } catch (e: Exception) { null }
 
     private fun runSosIfReady() {
         if (sosWaiting && pageReady) {
@@ -177,7 +228,7 @@ class MainActivity : AppCompatActivity() {
                 if (ours) return false
                 openOutside(u); return true                       // tel:, sms:, WhatsApp and other sites
             }
-            override fun onPageFinished(view: WebView, url: String) { pageReady = true; runSosIfReady() }
+            override fun onPageFinished(view: WebView, url: String) { pageReady = true; runSosIfReady(); deliverShared() }
         }
         w.webChromeClient = object : WebChromeClient() {
             override fun onShowFileChooser(view: WebView, cb: ValueCallback<Array<Uri>>, params: WebChromeClient.FileChooserParams): Boolean {
@@ -322,6 +373,30 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun preview(json: String) { runCatching { val j = JSONObject(json); runOnUiThread { updatePreview(j) } } }
+
+        // Test mode for automatic earnings (ride-app notifications).
+        @JavascriptInterface fun notifAccess(): Boolean = NotifLog.hasAccess(this@MainActivity)
+
+        @JavascriptInterface
+        fun notifSettings() {
+            runOnUiThread {
+                try { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
+                catch (e: ActivityNotFoundException) { startActivity(Intent(Settings.ACTION_SETTINGS)) }
+            }
+        }
+
+        @JavascriptInterface fun notifLog(): String = NotifLog.read(this@MainActivity).toString()
+
+        @JavascriptInterface fun notifClear() = NotifLog.clear(this@MainActivity)
+
+        /** The captain chooses where to send the log (e.g. WhatsApp to the Galla team). */
+        @JavascriptInterface
+        fun shareText(text: String) {
+            runOnUiThread {
+                val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text)
+                startActivity(Intent.createChooser(send, "Galla"))
+            }
+        }
 
         @JavascriptInterface fun version(): String = BuildConfig.VERSION_NAME
     }

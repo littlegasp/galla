@@ -95,7 +95,7 @@ node kavach-admin.mjs status <code> <reportId> shared   # what the captain sees:
 4. The app is at `https://littlegasp.com/galla/`. When Galla gets its own domain, add a `CNAME` file with that domain to this repo only. Captains' saved links will change once.
 5. Firebase → **Authentication → Settings → Authorized domains** → add `littlegasp.com`.
 
-**When you change a web file later:** open `sw.js` and raise the number in `galla-v5` (to `galla-v6` and so on), then upload. Otherwise phones keep showing the old cached version. The Android app shows the same web pages, so web changes reach it too, without a new APK.
+**When you change a web file later:** open `sw.js` and raise the number in `galla-v6` (to `galla-v7` and so on), then upload. Otherwise phones keep showing the old cached version. The Android app shows the same web pages, so web changes reach it too, without a new APK.
 
 ## 4. Give each captain their link
 
@@ -112,6 +112,8 @@ The first phone to open a code owns it. If a captain changes phones: in the Fire
 - **Install on a phone:** open the link in Chrome → download → open the file → allow "Install unknown apps" for Chrome when Android asks → Install. On first open, the captain types their code (or pastes their personal link).
 - **Updates:** installing a newer `galla.apk` over the old one keeps the captain's data. Web screens update by themselves, so a new APK is only needed when the recorder itself changes.
 - **Permissions it asks for:** microphone, camera, location and notifications, when Kavach is first started.
+- **Share → Galla:** captains can share Rapido/Uber screenshots straight from the screenshot preview or the gallery to Galla (one or several at once); the import opens by itself.
+- **Automatic earnings — test mode:** Settings → "स्वचालित हिसाब (टेस्ट)" → allow notification access. Galla then notes only ride-app notifications (Rapido, Uber, Ola, Namma Yatri, inDrive…) on that phone: the permanent "online" notification gives online hours, and trip/payment notifications may give fares. The list stays on the phone for 3 days; the captain can view it, clear it, or tap **Send to Galla team** to share it (e.g. on WhatsApp). One real shift's log tells us what can be turned into fully automatic hours and trips. Notification access is the captain's own choice in Android settings; Galla never opens or taps the ride apps.
 - **Signing key:** builds are signed with a pilot key kept in `android/keystore` (public repo). That's fine for the pilot, but before the Play Store or a wide rollout, make a private key and add it as four repo secrets: `GALLA_KEYSTORE_BASE64` (the .jks file in base64), `GALLA_KEYSTORE_PASSWORD`, `GALLA_KEY_ALIAS`, `GALLA_KEY_PASSWORD`. The build then uses it automatically. Phones need one uninstall/reinstall when the key changes.
 - **Play Store later:** Google will ask you to justify background camera and microphone use (foreground service declaration) and needs a privacy policy URL (`kavach.html` is a start).
 
