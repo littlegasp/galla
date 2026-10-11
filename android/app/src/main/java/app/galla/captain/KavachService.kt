@@ -24,6 +24,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.FileOutputOptions
@@ -189,9 +190,14 @@ class KavachService : LifecycleService() {
                     .build()
                 val vc = VideoCapture.withOutput(recorder)
                 val selector = if (cfg.optString("facing") == "back") CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
-                p.unbindAll()
-                p.bindToLifecycle(this, selector, vc)
+                // A preview use case too, so the Kavach screen can show what the camera sees while recording.
+                val pv = Preview.Builder().build()
+                PreviewHub.surface?.let { pv.setSurfaceProvider(it) }
+                p.unbindAll()                                // also releases the screen's "camera check"
+                p.bindToLifecycle(this, selector, pv, vc)
+                PreviewHub.servicePreview = pv
                 videoCapture = vc; videoActive = true
+                PreviewHub.onCameraChanged?.invoke()
                 startVideoSegment()
             } catch (e: Exception) {
                 Log.e(TAG, "camera unavailable, recording audio only", e)
@@ -337,15 +343,18 @@ class KavachService : LifecycleService() {
         stopping = false
         recording = null
         runCatching { provider?.unbindAll() }
+        PreviewHub.servicePreview = null
         runCatching { lm?.removeUpdates(locListener) }
         runCatching { if (wake?.isHeld == true) wake?.release() }
         videoActive = false
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
+        PreviewHub.onCameraChanged?.invoke()                 // the screen can take the camera back for "camera check"
     }
 
     override fun onDestroy() {
-        running = false
+        running = false; videoActive = false
+        PreviewHub.servicePreview = null
         main.removeCallbacksAndMessages(null)
         runCatching { recording?.stop() }
         runCatching { audioRec?.stop(); audioRec?.release() }

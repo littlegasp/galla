@@ -267,7 +267,9 @@
   .kvtime { font-family: var(--fd); font-weight: 800; font-size: 26px; letter-spacing: .03em; }
   .kvcam { width: 108px; aspect-ratio: 3/4; border-radius: 14px; overflow: hidden; border: 2px solid var(--rec); background: #000; flex: none; position: relative; }
   .kvcam video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
-  .kvcam span { position: absolute; left: 6px; top: 6px; background: var(--rec); color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 0 5px; }
+  .kvcam.check { border-color: var(--y); }
+  .kvcam.check span { background: var(--y); color: var(--ink); }
+  .kvcam span { position: absolute; left: 6px; top: 6px; z-index: 2; background: var(--rec); color: #fff; font-size: 10px; font-weight: 700; border-radius: 4px; padding: 0 5px; }
   .kvstate { text-align: center; color: #D9D3C3; font-size: 14px; margin-top: 10px; }
   .kvrow { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 15px; }
   .kvrow:first-child { border-top: 0; }
@@ -511,7 +513,7 @@
       </div>
       <div class="kvhero">
         <button class="kvbtn" id="kvToggle"></button>
-        <div class="kvcam hidden" id="kvCam"><video id="kvPreview" muted playsinline autoplay></video><span>REC</span></div>
+        <div class="kvcam hidden" id="kvCam"><video id="kvPreview" muted playsinline autoplay></video><span id="kvCamTag">REC</span></div>
       </div>
       <div class="kvstate" id="kvState"></div>
       <div class="road"></div>
@@ -945,6 +947,7 @@ const T = {
   kvSosLoc:   { hi: "लोकेशन ढूँढ रहे हैं…", mr: "लोकेशन शोधत आहोत…", gu: "લોકેશન શોધીએ છીએ…", en: "Finding your location…" },
   kvSosMsg:   { hi: "SOS! मुझे तुरंत मदद चाहिए। मेरी लोकेशन: {u} (Galla कैप्टन {c})", mr: "SOS! मला लगेच मदत हवी आहे. माझे लोकेशन: {u} (Galla कॅप्टन {c})", gu: "SOS! મને તરત મદદ જોઈએ છે. મારું લોકેશન: {u} (Galla કૅપ્ટન {c})", en: "SOS! I need help now. My location: {u} (Galla captain {c})" },
   remindBody: { hi: "आज के स्क्रीनशॉट डालें — 1 मिनट लगेगा", mr: "आजचे स्क्रीनशॉट टाका — 1 मिनिट लागेल", gu: "આજના સ્ક્રીનશૉટ નાખો — 1 મિનિટ લાગશે", en: "Add today's screenshots — takes 1 minute" },
+  kvCamCheck: { hi: "कैमरा जाँच", mr: "कॅमेरा तपासणी", gu: "કૅમેરા તપાસ", en: "CHECK" },
   kvRecording:{ hi: "रिकॉर्डिंग चालू है", mr: "रेकॉर्डिंग चालू आहे", gu: "રેકોર્ડિંગ ચાલુ છે", en: "Recording is on" },
   kvDemo:     { hi: "डेमो: रिकॉर्डिंग लॉक होकर इसी फ़ोन में रहती है, सर्वर पर नहीं जाती।", mr: "डेमो: रेकॉर्डिंग लॉक होऊन याच फोनमध्ये राहते, सर्व्हरवर जात नाही.", gu: "ડેમો: રેકોર્ડિંગ લૉક થઈને આ જ ફોનમાં રહે છે, સર્વર પર જતું નથી.", en: "Demo: recordings are locked and stay on this phone; nothing goes to a server." }
 };
@@ -989,7 +992,7 @@ const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(
 function toast(msg) { const el = $("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), msg.length > 60 ? 4500 : 1600); }
 const SCREENS = ["scrLoading", "scrMessage", "scrSetup", "scrMain", "scrWeek", "scrKavach", "scrSettings"];
 let current = "scrLoading";
-function show(id) { current = id; SCREENS.forEach(s => $(s).classList.toggle("hidden", s !== id)); window.scrollTo(0, 0); }
+function show(id) { current = id; SCREENS.forEach(s => $(s).classList.toggle("hidden", s !== id)); window.scrollTo(0, 0); kvPreviewSync(); }
 function message(text) { $("msgText").textContent = text; show("scrMessage"); }
 function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
 
@@ -1443,8 +1446,8 @@ $("weekShare").onclick = async () => {
 $("weekBack").onclick = () => { show("scrMain"); render._lastNet = null; shownNet = 0; render(); };
 
 /* ---------- sheets ---------- */
-function openSheet(id) { $("scrim").classList.add("open"); $(id).classList.add("open"); }
-function closeSheets() { $("scrim").classList.remove("open"); document.querySelectorAll(".sheet").forEach(s => s.classList.remove("open")); }
+function openSheet(id) { $("scrim").classList.add("open"); $(id).classList.add("open"); kvPreviewSync(); }
+function closeSheets() { $("scrim").classList.remove("open"); document.querySelectorAll(".sheet").forEach(s => s.classList.remove("open")); kvPreviewSync(); }
 $("scrim").onclick = closeSheets;
 document.querySelectorAll("[data-close]").forEach(b => b.onclick = closeSheets);
 
@@ -1539,8 +1542,10 @@ $("expSave").onclick = async () => {
 
 function flash(id, ms) {
   const o = $(id); o.classList.remove("open"); void o.offsetWidth; o.classList.add("open");
-  clearTimeout(flash._t); flash._t = setTimeout(() => o.classList.remove("open"), ms);
-  o.onclick = () => o.classList.remove("open");
+  const close = () => { o.classList.remove("open"); kvPreviewSync(); };
+  clearTimeout(flash._t); flash._t = setTimeout(close, ms);
+  o.onclick = close;
+  kvPreviewSync();
 }
 
 /* ---------- screenshot import ---------- */
@@ -1958,7 +1963,13 @@ function kvRender() {
   else if (kv.on) { const tm = el("span", "kvtime", clock(Date.now() - kv.startedAt)); tm.id = "kvClock"; b.append(el("span", "recdot"), tm, el("span", "", t("kvStop"))); }
   else { const ic = el("span"); ic.innerHTML = SHIELD("#FFC629", 52); b.append(ic, el("span", "", t("kvStart"))); }
   b.setAttribute("aria-pressed", kv.on ? "true" : "false");
-  $("kvCam").classList.toggle("hidden", !(kv.on && kv.stream && kv.stream.getVideoTracks().length));
+  // In the Android app the native camera preview is laid over this frame — shown before starting too,
+  // so the captain can set the phone in its holder ("कैमरा जाँच"), and while recording ("REC").
+  const camShown = NATIVE ? kvVideoOn() : !!(kv.on && kv.stream && kv.stream.getVideoTracks().length);
+  $("kvCam").classList.toggle("hidden", !camShown);
+  $("kvCam").classList.toggle("check", !kv.on);
+  $("kvCamTag").textContent = kv.on ? "REC" : t("kvCamCheck");
+  kvPreviewSync();
   $("kvState").textContent = kv.on ? t(NATIVE ? "kvNativeBg" : "kvOnState") : t(kvVideoOn() ? "kvOffState" : "kvOffStateA");
   $("kvKeepOpen").classList.toggle("hidden", !kv.on || !!NATIVE);
   const bb = $("kvBanner"); bb.innerHTML = ""; if (DEMO) bb.appendChild(el("div", "banner demo", t("kvDemo")));
@@ -2210,6 +2221,22 @@ window.gallaBack = () => {
   return false;
 };
 // "SOS" on the recording notification opens this.
+/** Tells the Android app where to draw its live camera preview (the #kvCam frame), or to hide it. */
+let kvPreviewLast = "";
+function kvPreviewSync(force) {
+  if (!NATIVE || !NATIVE.preview) return;
+  const cam = $("kvCam");
+  let msg = { show: false };
+  if (current === "scrKavach" && !cam.classList.contains("hidden") && !document.querySelector(".sheet.open, .done.open")) {
+    const r = cam.getBoundingClientRect(), b = 2;   // inside the 2px border
+    if (r.bottom > 0 && r.top < innerHeight) msg = { show: true, x: Math.round(r.left + b), y: Math.round(r.top + b), w: Math.round(r.width - 2 * b), h: Math.round(r.height - 2 * b), facing: kvFacing(), rec: kv.on };
+  }
+  const key = JSON.stringify(msg);
+  if (force || key !== kvPreviewLast) { kvPreviewLast = key; NATIVE.preview(key); }
+}
+window.gallaPreviewSync = () => kvPreviewSync(true);
+addEventListener("scroll", () => requestAnimationFrame(() => kvPreviewSync()), { passive: true });
+addEventListener("resize", () => kvPreviewSync());
 window.gallaNativeSOS = () => { show("scrKavach"); kvRefresh(); $("kvSosBtn").click(); };
 if (NATIVE) {
   setInterval(kvNativePoll, 2000);

@@ -6,13 +6,16 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.Outline
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.webkit.GeolocationPermissions
 import android.webkit.JavascriptInterface
 import android.webkit.ValueCallback
@@ -22,12 +25,17 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import org.json.JSONObject
 
@@ -46,6 +54,13 @@ class MainActivity : AppCompatActivity() {
     private var pageReady = false
     private var sosWaiting = false
 
+    // Live camera preview drawn over the web page's camera frame on the Kavach screen.
+    private var previewView: PreviewView? = null
+    private var checkPreview: Preview? = null          // the screen's own preview when not recording
+    private var checkFacing = ""
+    private var lastPreview: JSONObject? = null
+    private var askedCamera = false
+
     private val pickImages = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris ->
         fileCallback?.onReceiveValue(uris.toTypedArray()); fileCallback = null
     }
@@ -57,6 +72,10 @@ class MainActivity : AppCompatActivity() {
             if (mic) KavachService.start(this)
             else Toast.makeText(this, "Microphone permission is needed for Kavach", Toast.LENGTH_LONG).show()
         }
+    }
+
+    private val askCamera = registerForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        if (ok) lastPreview?.let { updatePreview(it) }
     }
 
     private fun has(p: String) = ContextCompat.checkSelfPermission(this, p) == PackageManager.PERMISSION_GRANTED
@@ -73,7 +92,18 @@ class MainActivity : AppCompatActivity() {
                 w.evaluateJavascript("(window.gallaBack && window.gallaBack()) ? 'y' : 'n'") { r -> if (r?.contains("y") != true) finish() }
             }
         })
+        PreviewHub.onCameraChanged = { lastPreview?.let { updatePreview(it) } }
         UploadWorker.kick(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        web?.evaluateJavascript("window.gallaPreviewSync && window.gallaPreviewSync()", null)
+    }
+
+    override fun onPause() {
+        hidePreview()
+        super.onPause()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -159,7 +189,21 @@ class MainActivity : AppCompatActivity() {
                 callback.invoke(origin, has(Manifest.permission.ACCESS_FINE_LOCATION) || has(Manifest.permission.ACCESS_COARSE_LOCATION), false)
             }
         }
-        setContentView(w)
+        val root = FrameLayout(this)
+        root.addView(w, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        val pv = PreviewView(this).apply {
+            implementationMode = PreviewView.ImplementationMode.COMPATIBLE   // draws correctly inside the rounded box
+            scaleType = PreviewView.ScaleType.FILL_CENTER
+            visibility = View.GONE
+            val r = 12 * resources.displayMetrics.density
+            outlineProvider = object : ViewOutlineProvider() {
+                override fun getOutline(view: View, outline: Outline) { outline.setRoundRect(0, 0, view.width, view.height, r) }
+            }
+            clipToOutline = true
+        }
+        root.addView(pv, FrameLayout.LayoutParams(1, 1))
+        previewView = pv
+        setContentView(root)
         w.loadUrl(BuildConfig.APP_URL + "?c=" + Uri.encode(code))
     }
 
@@ -178,7 +222,65 @@ class MainActivity : AppCompatActivity() {
         else { pendingStart = true; askPerms.launch(missing.toTypedArray()) }
     }
 
+    /* ---------- camera preview on the Kavach screen ---------- */
+
+    /** The web page says where its camera frame is (CSS px = dp) and whether it's on screen. */
+    private fun updatePreview(j: JSONObject) {
+        lastPreview = j
+        val pv = previewView ?: return
+        if (!j.optBoolean("show")) { hidePreview(); return }
+        val d = resources.displayMetrics.density
+        pv.layoutParams = FrameLayout.LayoutParams((j.optInt("w") * d).toInt(), (j.optInt("h") * d).toInt()).apply {
+            leftMargin = (j.optInt("x") * d).toInt(); topMargin = (j.optInt("y") * d).toInt()
+        }
+        pv.visibility = View.VISIBLE
+        if (KavachService.running) {
+            // Recording: show the recorder's own camera feed.
+            releaseCheck()
+            PreviewHub.attach(pv.surfaceProvider)
+        } else {
+            PreviewHub.detach()
+            val facing = j.optString("facing", "front")
+            if (checkPreview == null || checkFacing != facing) startCheck(facing)
+        }
+    }
+
+    private fun hidePreview() {
+        previewView?.visibility = View.GONE
+        PreviewHub.detach()
+        releaseCheck()
+    }
+
+    /** "Camera check" before recording, so the captain can set the phone in its holder. */
+    private fun startCheck(facing: String) {
+        if (!has(Manifest.permission.CAMERA)) {
+            if (!askedCamera) { askedCamera = true; askCamera.launch(Manifest.permission.CAMERA) }
+            return
+        }
+        val future = ProcessCameraProvider.getInstance(this)
+        future.addListener({
+            val pv = previewView ?: return@addListener
+            if (KavachService.running || pv.visibility != View.VISIBLE) return@addListener
+            try {
+                val p = future.get()
+                checkPreview?.let { p.unbind(it) }
+                val prev = Preview.Builder().build().also { it.setSurfaceProvider(pv.surfaceProvider) }
+                val sel = if (facing == "back") CameraSelector.DEFAULT_BACK_CAMERA else CameraSelector.DEFAULT_FRONT_CAMERA
+                p.bindToLifecycle(this, sel, prev)
+                checkPreview = prev; checkFacing = facing
+            } catch (e: Exception) { checkPreview = null }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun releaseCheck() {
+        val prev = checkPreview ?: return
+        checkPreview = null; checkFacing = ""
+        runCatching { ProcessCameraProvider.getInstance(this).get().unbind(prev) }
+    }
+
     override fun onDestroy() {
+        PreviewHub.onCameraChanged = null
+        hidePreview()
         web?.destroy(); web = null
         super.onDestroy()
     }
@@ -217,6 +319,9 @@ class MainActivity : AppCompatActivity() {
                 runOnUiThread { askPerms.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS)) }
             ReminderWorker.schedule(this@MainActivity, on, title, body)
         }
+
+        @JavascriptInterface
+        fun preview(json: String) { runCatching { val j = JSONObject(json); runOnUiThread { updatePreview(j) } } }
 
         @JavascriptInterface fun version(): String = BuildConfig.VERSION_NAME
     }

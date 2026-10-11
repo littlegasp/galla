@@ -95,7 +95,7 @@ node kavach-admin.mjs status <code> <reportId> shared   # what the captain sees:
 4. The app is at `https://littlegasp.com/galla/`. When Galla gets its own domain, add a `CNAME` file with that domain to this repo only. Captains' saved links will change once.
 5. Firebase → **Authentication → Settings → Authorized domains** → add `littlegasp.com`.
 
-**When you change a web file later:** open `sw.js` and raise the number in `galla-v4` (to `galla-v5` and so on), then upload. Otherwise phones keep showing the old cached version. The Android app shows the same web pages, so web changes reach it too, without a new APK.
+**When you change a web file later:** open `sw.js` and raise the number in `galla-v5` (to `galla-v6` and so on), then upload. Otherwise phones keep showing the old cached version. The Android app shows the same web pages, so web changes reach it too, without a new APK.
 
 ## 4. Give each captain their link
 
