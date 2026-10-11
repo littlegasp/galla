@@ -4,3 +4,7 @@ service-account.json
 *.jwk.json
 node_modules/
 evidence/
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties

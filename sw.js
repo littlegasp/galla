@@ -1,6 +1,6 @@
 // Galla service worker: lets the app open with no internet.
 // Bump VERSION whenever you upload a changed index.html or images.
-const VERSION = "galla-v3";
+const VERSION = "galla-v4";
 const SHELL = [
   "./", "./index.html", "./manifest.webmanifest",
   "./assets/icon-96.png", "./assets/icon-192.png", "./assets/icon-512.png",

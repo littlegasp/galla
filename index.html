@@ -284,6 +284,29 @@
   .cbx input { width: 22px; height: 22px; margin: 1px 0 0; flex: none; accent-color: var(--ink); }
   .sos-big { display: flex; align-items: center; justify-content: center; gap: 10px; height: 64px; border-radius: 16px; font-family: var(--fd); font-weight: 800; font-size: 22px; text-decoration: none; border: 2px solid var(--ink); }
 
+  /* ---------- goal, week nav, settings ---------- */
+  .goal { margin-top: 10px; max-width: 240px; }
+  .goal-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: #D9D3C3; }
+  .goal-top b { color: var(--y); }
+  .goalbar { height: 10px; border-radius: 5px; background: #3A3527; overflow: hidden; margin-top: 4px; }
+  .goalbar i { display: block; height: 100%; width: 0; background: var(--y); border-radius: 5px; transition: width .9s cubic-bezier(.2,.8,.2,1); }
+  .goal.done .goalbar i { background: #7CD992; }
+  .goal.done .goal-top b { color: #7CD992; }
+  .weeknav { display: grid; grid-template-columns: 48px 1fr 48px; gap: 8px; align-items: center; margin-top: 14px; }
+  .navbtn { width: 48px; height: 48px; border-radius: 24px; border: 2px solid var(--ink); background: var(--y); display: flex; align-items: center; justify-content: center; }
+  .navbtn:disabled { background: #3A3527; border-color: #3A3527; opacity: .5; }
+  .weekrange { text-align: center; font-family: var(--fd); font-weight: 700; font-size: 18px; color: #fff; }
+  .pill-g { border-radius: 10px; padding: 3px 10px; font-size: 14px; font-weight: 700; background: #1F3A27; color: #7CD992; }
+  .pill-r { border-radius: 10px; padding: 3px 10px; font-size: 14px; font-weight: 700; background: #3A1A17; color: #FF8A80; }
+  .dayrow { display: grid; grid-template-columns: 104px 1fr 80px; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .dayrow:first-child { border-top: 0; }
+  .dayrow .dn b { display: block; }
+  .dayrow .dn span, .dayrow .dm { font-size: 12px; color: var(--muted); }
+  .dayrow .dv { text-align: right; font-weight: 700; }
+  .dayrow .dv span { display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+  .dayrow.today .dn b::after { content: " •"; color: var(--rec); }
+  .dayrow.goalmet .dv b { color: var(--good); }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before { animation: none !important; transition: none !important; }
   }
@@ -334,9 +357,12 @@
           <img src="assets/icon-96.png" alt="Galla">
           <div><div class="name">Galla</div><div class="sub" id="todayDate"></div></div>
         </div>
-        <select class="langpill" id="langSel" aria-label="Language">
-          <option value="hi">हिंदी</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="en">English</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="langpill" id="langSel" aria-label="Language">
+            <option value="hi">हिंदी</option><option value="mr">मराठी</option><option value="gu">ગુજરાતી</option><option value="en">English</option>
+          </select>
+          <button class="backbtn" id="goSettings" aria-label="Settings"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+        </div>
       </div>
       <div class="netrow">
         <div style="min-width:0">
@@ -346,6 +372,7 @@
             <div class="pill-y" id="vPerHour">—</div>
             <div class="pill-o" id="vOnline">—</div>
           </div>
+          <div class="goal hidden" id="goalBox"><div class="goal-top"><span id="goalTxt"></span><b id="goalPct"></b></div><div class="goalbar"><i id="goalFill"></i></div></div>
         </div>
         <div class="galla" aria-hidden="true"><div class="coin">₹</div><img src="assets/icon-192.png" alt=""></div>
       </div>
@@ -376,7 +403,7 @@
       <div class="card"><ul class="list" id="recentList"></ul></div>
 
       <div style="display:flex;justify-content:center;margin-top:8px"><button class="linkbtn" id="btnTrip" data-t="manualTrip"></button></div>
-      <div class="foot"><span id="codeLabel"></span> · <button id="editSetup" data-t="editSetup"></button></div>
+      <div class="foot"><span id="codeLabel"></span> · <button id="editSetup" data-t="settings"></button></div>
     </div>
     <div class="actions"><div>
       <button class="btn y imp" id="btnImp"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-t="importBtn"></span></button>
@@ -390,18 +417,26 @@
       <div class="topline">
         <div class="brand">
           <button class="backbtn" id="weekBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
-          <div><div class="name" data-t="thisWeek"></div><div class="sub" id="weekRange"></div></div>
+          <div><div class="name" id="weekTitle"></div><div class="sub" data-t="weekSub"></div></div>
         </div>
         <img src="assets/icon-96.png" alt="" style="width:40px;height:40px;border-radius:10px">
       </div>
-      <div style="margin-top:14px">
+      <div class="weeknav">
+        <button class="navbtn" id="weekPrev" aria-label="Previous week"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <div class="weekrange" id="weekRange"></div>
+        <button class="navbtn" id="weekNext" aria-label="Next week"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
+      <div style="margin-top:12px">
         <div class="netlabel" data-t="weekNet"></div>
         <div class="net" id="wNet" style="color:var(--y);font-size:48px">₹0</div>
         <div style="font-size:15px;margin-top:4px" id="wSub"></div>
+        <div class="pills" id="wCompare"></div>
       </div>
       <div class="road"></div>
     </div>
     <div class="wrap">
+      <div class="h3"><span data-t="byDay"></span><small id="byDayHint"></small></div>
+      <div class="card" id="weekDays"></div>
       <div class="h3"><span data-t="whenBest"></span><small data-t="perHourFare"></small></div>
       <div class="card">
         <div class="heat" id="heat"></div>
@@ -413,6 +448,53 @@
       </div>
       <div class="h3"><span data-t="byAppWeek"></span><small data-t="perHourFare"></small></div>
       <div class="card" id="weekApps"></div>
+      <button class="btn y" id="weekShare" style="margin-top:16px;font-size:19px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg><span data-t="shareWeek"></span></button>
+      <div style="height:32px"></div>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="scrSettings" class="hidden">
+    <div class="band">
+      <div class="topline">
+        <div class="brand">
+          <button class="backbtn" id="setBack" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <div><div class="name" data-t="settings"></div><div class="sub" data-t="settingsSub"></div></div>
+        </div>
+        <img src="assets/icon-96.png" alt="" style="width:40px;height:40px;border-radius:10px">
+      </div>
+      <div class="road"></div>
+    </div>
+    <div class="wrap">
+      <div class="h3"><span data-t="langQ"></span></div>
+      <div class="grid4" id="stLang"></div>
+      <div class="h3"><span data-t="vehicleQ"></span></div>
+      <div class="grid3" id="stVeh"></div>
+      <div class="h3"><span data-t="appsQ"></span><small data-t="pickMany"></small></div>
+      <div class="grid3" id="stApps"></div>
+      <div class="serr" id="stErr" style="text-align:left;margin-top:6px"></div>
+      <div class="h3"><span data-t="goalQ"></span><small data-t="goalHint"></small></div>
+      <div class="grid4" id="stGoal"></div>
+      <div class="card" style="margin-top:10px">
+        <div class="kvrow"><div class="tx"><b data-t="goalOwn"></b><span data-t="goalOwnHint"></span></div>
+          <input type="number" inputmode="numeric" class="field" id="stGoalIn" min="0" max="20000" step="50" style="width:120px;text-align:right" placeholder="₹"></div>
+      </div>
+      <div class="h3"><span data-t="kvTitle"></span></div>
+      <button class="kvlink" id="stKavach" style="margin-top:0">
+        <span id="stKvIc"></span>
+        <span style="flex:1;min-width:0"><b data-t="kvSettingsLink"></b><span class="s" data-t="kvSettingsHint"></span></span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFC629" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="card hidden" id="stNativeCard" style="margin-top:12px">
+        <div class="kvrow"><div class="tx"><b data-t="remindQ"></b><span data-t="remindHint"></span></div>
+          <button class="chip" id="stRemind" style="min-width:72px"></button></div>
+      </div>
+      <div class="h3"><span data-t="aboutT"></span></div>
+      <div class="card">
+        <div class="kvrow"><div class="tx"><b data-t="yourCode"></b><span id="stCode"></span></div></div>
+        <div class="kvrow"><div class="tx"><b data-t="privacyT"></b><span data-t="neverRead"></span></div></div>
+        <div class="kvrow" id="stSupportRow"><div class="tx"><b data-t="helpT"></b><span id="stSupport"></span></div></div>
+      </div>
       <div style="height:32px"></div>
     </div>
   </section>
@@ -449,6 +531,10 @@
         <div class="kvrow">
           <div class="tx"><b data-t="kvVideoToggle"></b><span data-t="kvVideoHint"></span></div>
           <button class="chip" id="kvVideoBtn" style="min-width:72px"></button>
+        </div>
+        <div class="kvrow" id="kvCamRow">
+          <div class="tx"><b data-t="kvCamSide"></b><span data-t="kvCamSideHint"></span></div>
+          <div style="display:flex;gap:6px"><button class="chip" id="kvCamFront" data-t="kvFront"></button><button class="chip" id="kvCamBack" data-t="kvBack"></button></div>
         </div>
         <div class="kvrow">
           <div class="tx"><b data-t="kvContacts"></b><span id="kvContactsTxt"></span></div>
@@ -685,7 +771,7 @@ const T = {
   deleted:    { hi: "हटा दिया", mr: "हटवले", gu: "કાઢી નાખ્યું", en: "Deleted" },
   sessionWord:{ hi: "ऑनलाइन रहे", mr: "ऑनलाइन होतो", gu: "ઑનલાઇન રહ્યા", en: "online" },
   thisWeek:   { hi: "इस हफ़्ते", mr: "हा आठवडा", gu: "આ અઠવાડિયું", en: "This week" },
-  weekNet:    { hi: "पिछले 7 दिनों की शुद्ध कमाई", mr: "मागील 7 दिवसांची निव्वळ कमाई", gu: "છેલ્લા 7 દિવસની ચોખ્ખી કમાણી", en: "Net earnings, last 7 days" },
+  weekNet:    { hi: "हफ़्ते की शुद्ध कमाई", mr: "आठवड्याची निव्वळ कमाई", gu: "અઠવાડિયાની ચોખ્ખી કમાણી", en: "Net earnings for the week" },
   avg:        { hi: "औसत", mr: "सरासरी", gu: "સરેરાશ", en: "average" },
   hoursOnline:{ hi: "घंटे ऑनलाइन", mr: "तास ऑनलाइन", gu: "કલાક ઑનલાઇન", en: "hours online" },
   whenBest:   { hi: "किस समय सबसे ज़्यादा कमाई", mr: "कोणत्या वेळी सर्वाधिक कमाई", gu: "કયા સમયે સૌથી વધુ કમાણી", en: "When you earn most" },
@@ -736,6 +822,46 @@ const T = {
   slot3:      { hi: "शाम", mr: "संध्याकाळी", gu: "સાંજે", en: "evening" },
   slot4:      { hi: "रात", mr: "रात्री", gu: "રાત્રે", en: "night" },
   longOnline: { hi: "12 घंटे से ज़्यादा — बंद करना भूले?", mr: "12 तासांपेक्षा जास्त — बंद करायला विसरलात?", gu: "12 કલાકથી વધુ — બંધ કરવાનું ભૂલ્યા?", en: "Over 12 h — forgot to switch off?" },
+
+  /* settings, goal, week navigation */
+  settings:   { hi: "सेटिंग", mr: "सेटिंग", gu: "સેટિંગ", en: "Settings" },
+  settingsSub:{ hi: "भाषा, गाड़ी, ऐप, लक्ष्य", mr: "भाषा, गाडी, अ‍ॅप, लक्ष्य", gu: "ભાષા, વાહન, એપ, લક્ષ્ય", en: "Language, vehicle, apps, goal" },
+  lastApp:    { hi: "कम से कम एक ऐप चालू रखें", mr: "किमान एक अ‍ॅप ठेवा", gu: "ઓછામાં ઓછી એક એપ રાખો", en: "Keep at least one app" },
+  saved:      { hi: "सेव हो गया", mr: "सेव्ह झाले", gu: "સેવ થયું", en: "Saved" },
+  goalQ:      { hi: "रोज़ का लक्ष्य", mr: "रोजचे लक्ष्य", gu: "રોજનું લક્ષ્ય", en: "Daily goal" },
+  goalHint:   { hi: "शुद्ध कमाई", mr: "निव्वळ कमाई", gu: "ચોખ્ખી કમાણી", en: "net earnings" },
+  goalOff:    { hi: "नहीं", mr: "नाही", gu: "નહીં", en: "None" },
+  goalOwn:    { hi: "अपना लक्ष्य", mr: "स्वतःचे लक्ष्य", gu: "પોતાનું લક્ષ્ય", en: "Your own goal" },
+  goalOwnHint:{ hi: "₹ में लिखें", mr: "₹ मध्ये लिहा", gu: "₹ માં લખો", en: "type an amount in ₹" },
+  goalTxt:    { hi: "लक्ष्य {g}", mr: "लक्ष्य {g}", gu: "લક્ષ્ય {g}", en: "Goal {g}" },
+  goalLeft:   { hi: "{v} बाकी", mr: "{v} बाकी", gu: "{v} બાકી", en: "{v} to go" },
+  goalDone:   { hi: "लक्ष्य पूरा!", mr: "लक्ष्य पूर्ण!", gu: "લક્ષ્ય પૂરું!", en: "Goal reached!" },
+  goalDays:   { hi: "{n}/{m} दिन लक्ष्य पूरा", mr: "{n}/{m} दिवस लक्ष्य पूर्ण", gu: "{n}/{m} દિવસ લક્ષ્ય પૂરું", en: "Goal met {n} of {m} days" },
+  weekSub:    { hi: "हफ़्ते का हिसाब", mr: "आठवड्याचा हिशोब", gu: "અઠવાડિયાનો હિસાબ", en: "Weekly report" },
+  weekLast:   { hi: "पिछला हफ़्ता", mr: "मागचा आठवडा", gu: "ગયું અઠવાડિયું", en: "Last week" },
+  weekOld:    { hi: "{n} हफ़्ते पहले", mr: "{n} आठवड्यांपूर्वी", gu: "{n} અઠવાડિયા પહેલાં", en: "{n} weeks ago" },
+  vsLast:     { hi: "पिछले हफ़्ते से {d}", mr: "मागच्या आठवड्यापेक्षा {d}", gu: "ગયા અઠવાડિયા કરતાં {d}", en: "{d} vs last week" },
+  loading:    { hi: "लोड हो रहा है…", mr: "लोड होत आहे…", gu: "લોડ થાય છે…", en: "Loading…" },
+  byDay:      { hi: "दिन के हिसाब से", mr: "दिवसानुसार", gu: "દિવસ પ્રમાણે", en: "Day by day" },
+  dayOff:     { hi: "छुट्टी", mr: "सुट्टी", gu: "રજા", en: "Off" },
+  bestDay:    { hi: "सबसे अच्छा दिन: {d}", mr: "सर्वोत्तम दिवस: {d}", gu: "શ્રેષ્ઠ દિવસ: {d}", en: "Best day: {d}" },
+  shareWeek:  { hi: "WhatsApp पर भेजें", mr: "WhatsApp वर पाठवा", gu: "WhatsApp પર મોકલો", en: "Share on WhatsApp" },
+  shareHead:  { hi: "मेरी Galla कमाई · {r}", mr: "माझी Galla कमाई · {r}", gu: "મારી Galla કમાણી · {r}", en: "My Galla earnings · {r}" },
+  shareNet:   { hi: "शुद्ध कमाई: {v}", mr: "निव्वळ कमाई: {v}", gu: "ચોખ્ખી કમાણી: {v}", en: "Net earnings: {v}" },
+  shareRate:  { hi: "{v}/घंटा · {h} घंटे ऑनलाइन · {t} राइड", mr: "{v}/तास · {h} तास ऑनलाइन · {t} राईड", gu: "{v}/કલાક · {h} કલાક ઑનલાઇન · {t} રાઇડ", en: "{v}/hr · {h} h online · {t} trips" },
+  shareFoot:  { hi: "Galla से — हर राइड का पक्का हिसाब", mr: "Galla कडून — प्रत्येक राईडचा पक्का हिशोब", gu: "Galla થી — દરેક રાઇડનો પાક્કો હિસાબ", en: "From Galla — every ride, properly counted" },
+  remindQ:    { hi: "रात 10 बजे याद दिलाएं", mr: "रात्री 10 वाजता आठवण करा", gu: "રાત્રે 10 વાગ્યે યાદ અપાવો", en: "Remind me at 10 pm" },
+  remindHint: { hi: "दिन के स्क्रीनशॉट डालने के लिए", mr: "दिवसाचे स्क्रीनशॉट टाकण्यासाठी", gu: "દિવસના સ્ક્રીનશૉટ નાખવા માટે", en: "to add the day's screenshots" },
+  aboutT:     { hi: "जानकारी", mr: "माहिती", gu: "માહિતી", en: "About" },
+  privacyT:   { hi: "आपका डेटा", mr: "तुमचा डेटा", gu: "તમારો ડેટા", en: "Your data" },
+  helpT:      { hi: "मदद", mr: "मदत", gu: "મદદ", en: "Help" },
+  kvSettingsLink:{ hi: "कवच सेटिंग", mr: "कवच सेटिंग", gu: "કવચ સેટિંગ", en: "Kavach settings" },
+  kvSettingsHint:{ hi: "कैमरा आगे/पीछे, वीडियो, इमरजेंसी नंबर", mr: "कॅमेरा समोर/मागे, व्हिडिओ, इमर्जन्सी नंबर", gu: "કૅમેરા આગળ/પાછળ, વીડિયો, ઇમરજન્સી નંબર", en: "Front/back camera, video, emergency contacts" },
+  kvCamSide:  { hi: "कौन-सा कैमरा", mr: "कोणता कॅमेरा", gu: "કયો કૅમેરા", en: "Which camera" },
+  kvCamSideHint:{ hi: "सामने: आप और सवारी · पीछे: सड़क", mr: "समोर: तुम्ही आणि प्रवासी · मागे: रस्ता", gu: "આગળ: તમે અને સવારી · પાછળ: રસ્તો", en: "Front: you and the rider · Back: the road" },
+  kvFront:    { hi: "सामने", mr: "समोर", gu: "આગળ", en: "Front" },
+  kvBack:     { hi: "पीछे", mr: "मागे", gu: "પાછળ", en: "Back" },
+  kvNativeBg: { hi: "बैकग्राउंड में रिकॉर्डिंग — अब Rapido खोल सकते हैं", mr: "बॅकग्राउंडमध्ये रेकॉर्डिंग — आता Rapido उघडू शकता", gu: "બૅકગ્રાઉન્ડમાં રેકોર્ડિંગ — હવે Rapido ખોલી શકો", en: "Recording in the background — you can open Rapido now" },
 
   /* Galla Kavach */
   kvTitle:    { hi: "Galla कवच", mr: "Galla कवच", gu: "Galla કવચ", en: "Galla Kavach" },
@@ -818,6 +944,8 @@ const T = {
   kvSosNote:  { hi: "कवच रिकॉर्डिंग चालू है और Galla टीम को रिपोर्ट चली गई है।", mr: "कवच रेकॉर्डिंग चालू आहे आणि Galla टीमला रिपोर्ट गेला आहे.", gu: "કવચ રેકોર્ડિંગ ચાલુ છે અને Galla ટીમને રિપોર્ટ ગયો છે.", en: "Kavach is recording and a report has gone to the Galla team." },
   kvSosLoc:   { hi: "लोकेशन ढूँढ रहे हैं…", mr: "लोकेशन शोधत आहोत…", gu: "લોકેશન શોધીએ છીએ…", en: "Finding your location…" },
   kvSosMsg:   { hi: "SOS! मुझे तुरंत मदद चाहिए। मेरी लोकेशन: {u} (Galla कैप्टन {c})", mr: "SOS! मला लगेच मदत हवी आहे. माझे लोकेशन: {u} (Galla कॅप्टन {c})", gu: "SOS! મને તરત મદદ જોઈએ છે. મારું લોકેશન: {u} (Galla કૅપ્ટન {c})", en: "SOS! I need help now. My location: {u} (Galla captain {c})" },
+  remindBody: { hi: "आज के स्क्रीनशॉट डालें — 1 मिनट लगेगा", mr: "आजचे स्क्रीनशॉट टाका — 1 मिनिट लागेल", gu: "આજના સ્ક્રીનશૉટ નાખો — 1 મિનિટ લાગશે", en: "Add today's screenshots — takes 1 minute" },
+  kvRecording:{ hi: "रिकॉर्डिंग चालू है", mr: "रेकॉर्डिंग चालू आहे", gu: "રેકોર્ડિંગ ચાલુ છે", en: "Recording is on" },
   kvDemo:     { hi: "डेमो: रिकॉर्डिंग लॉक होकर इसी फ़ोन में रहती है, सर्वर पर नहीं जाती।", mr: "डेमो: रेकॉर्डिंग लॉक होऊन याच फोनमध्ये राहते, सर्व्हरवर जात नाही.", gu: "ડેમો: રેકોર્ડિંગ લૉક થઈને આ જ ફોનમાં રહે છે, સર્વર પર જતું નથી.", en: "Demo: recordings are locked and stay on this phone; nothing goes to a server." }
 };
 
@@ -852,11 +980,14 @@ const dur = ms => { const m = Math.max(0, Math.round(ms / 60000)); const h = Mat
 const locale = () => ({ hi: "hi-IN", mr: "mr-IN", gu: "gu-IN", en: "en-IN" })[lang];
 const hhmm = ts => new Date(ts).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
 const dayStart = (ts = Date.now()) => { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); };
-const weekStart = () => dayStart() - 6 * DAY;
+/* Weeks run Monday–Sunday. weekFrom(0) = this Monday, weekFrom(-1) = last Monday. */
+const mondayOf = (ts = Date.now()) => { const d = new Date(dayStart(ts)); return d.getTime() - ((d.getDay() + 6) % 7) * DAY; };
+const weekFrom = (off = 0) => mondayOf() + off * 7 * DAY;
+const liveFrom = () => weekFrom(-1);   // kept live: this week and last week; older weeks load on demand
 const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 
 function toast(msg) { const el = $("toast"); el.textContent = msg; el.classList.add("show"); clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), msg.length > 60 ? 4500 : 1600); }
-const SCREENS = ["scrLoading", "scrMessage", "scrSetup", "scrMain", "scrWeek", "scrKavach"];
+const SCREENS = ["scrLoading", "scrMessage", "scrSetup", "scrMain", "scrWeek", "scrKavach", "scrSettings"];
 let current = "scrLoading";
 function show(id) { current = id; SCREENS.forEach(s => $(s).classList.toggle("hidden", s !== id)); window.scrollTo(0, 0); }
 function message(text) { $("msgText").textContent = text; show("scrMessage"); }
@@ -872,7 +1003,8 @@ class LocalStore {
   constructor(cid) { this.key = "gl_demo_" + cid; this.data = LS.get(this.key, { cap: { online: {}, profile: null }, entries: [] }); }
   async init() { return "ok"; }
   save() { LS.set(this.key, this.data); this.emit(); }
-  emit() { if (this.cb) { const ws = weekStart(); this.cb({ cap: this.data.cap, entries: this.data.entries.filter(e => e.ts >= ws) }); } }
+  emit() { if (this.cb) { const ws = liveFrom(); this.cb({ cap: this.data.cap, entries: this.data.entries.filter(e => e.ts >= ws) }); } }
+  async loadRange(from, to) { return this.data.entries.filter(e => e.ts >= from && e.ts < to); }
   subscribe(cb) { this.cb = cb; this.emit(); }
   async addEntry(e) { this.data.entries.push({ ...e, id: uid() }); this.save(); }
   async removeEntry(id) { this.data.entries = this.data.entries.filter(e => e.id !== id); this.save(); }
@@ -928,7 +1060,7 @@ class FireStore {
     const auth = A.getAuth(app);
     let u = auth.currentUser || await new Promise(res => { const off = A.onAuthStateChanged(auth, x => { off(); res(x); }); });
     if (!u) { if (!navigator.onLine) return "needNet"; u = (await A.signInAnonymously(auth)).user; }
-    this.uid = u.uid;
+    this.uid = u.uid; this.auth = auth;
     this.capRef = F.doc(this.db, "captains", this.cid);
     this.entriesCol = F.collection(this.db, "captains", this.cid, "entries");
     try { const snap = await F.getDoc(this.capRef); if (snap.exists()) return "ok"; } catch (e) { /* not ours, or not created */ }
@@ -938,7 +1070,7 @@ class FireStore {
   subscribe(cb) {
     const F = this.F, push = () => { if (this.cap) cb({ cap: this.cap, entries: this.entries }); };
     F.onSnapshot(this.capRef, s => { this.cap = s.data() || { online: {}, profile: null }; push(); });
-    const q = F.query(this.entriesCol, F.where("ts", ">=", weekStart()), F.orderBy("ts", "desc"));
+    const q = F.query(this.entriesCol, F.where("ts", ">=", liveFrom()), F.orderBy("ts", "desc"));
     F.onSnapshot(q, s => { this.entries = s.docs.map(d => ({ id: d.id, ...d.data() })); push(); });
   }
   /** Reads one screenshot with Gemini via Firebase AI Logic. Returns the parsed JSON. */
@@ -961,6 +1093,16 @@ class FireStore {
     }
     const res = await this.model.generateContent([SHOT_PROMPT, { inlineData: { data: b64, mimeType: "image/jpeg" } }]);
     return JSON.parse(res.response.text());
+  }
+  /** One-off read of an older week (Firestore falls back to its offline cache without internet). */
+  async loadRange(from, to) {
+    const F = this.F, q = F.query(this.entriesCol, F.where("ts", ">=", from), F.where("ts", "<", to), F.orderBy("ts", "desc"));
+    return (await F.getDocs(q)).docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+  /** For the Android app's recorder: lets it upload as this same signed-in captain. */
+  authInfo() {
+    const u = this.auth && this.auth.currentUser;
+    return { apiKey: FIREBASE_CONFIG.apiKey, projectId: FIREBASE_CONFIG.projectId, bucket: FIREBASE_CONFIG.storageBucket, refreshToken: u ? u.refreshToken : null };
   }
   // Writes land in the local cache at once and sync when online.
   async addEntry(e) { this.F.setDoc(this.F.doc(this.entriesCol), { ...e, createdAt: this.F.serverTimestamp() }).catch(console.error); }
@@ -1023,8 +1165,8 @@ function summarize(cap, entries, from, to = Date.now()) {
   return { fares, expenses, net, trips: trips.length, onlineMs, perHour: onlineMs >= 5 * 60000 ? net / (onlineMs / 3600e3) : null, perApp };
 }
 
-function heatmap(cap, entries) {
-  const ivs = intervals(cap, entries), d0 = weekStart(), rows = [];
+function heatmap(cap, entries, d0) {
+  const ivs = intervals(cap, entries), rows = [];
   const slotTot = SLOTS.map(() => ({ f: 0, ms: 0 }));
   for (let d = 0; d < 7; d++) {
     const day = d0 + d * DAY, cells = [];
@@ -1063,6 +1205,7 @@ function applyLang() {
   if (cid) $("codeLabel").textContent = `${t("yourCode")}: ${cid}`;
   renderBanners();
   if (current === "scrSetup") renderSetup();
+  if (current === "scrSettings") renderSettings();
   render();
   kvRender();
 }
@@ -1096,6 +1239,7 @@ function setNet(target) {
 function render() {
   if (current === "scrWeek") return renderWeek();
   if (current === "scrKavach") return kvRender();
+  if (current === "scrSettings") return renderSettings();
   if (current !== "scrMain") return;
   const todayEntries = state.entries.filter(e => e.ts >= dayStart() || e.type === "session");
   const m = summarize(state.cap, todayEntries, dayStart());
@@ -1105,6 +1249,17 @@ function render() {
   $("vFares").textContent = "+" + rupees(m.fares);
   $("vTrips").textContent = m.trips;
   $("vExp").textContent = m.expenses ? "−₹" + inr(m.expenses) : "₹0";
+
+  // Daily goal
+  const G = goal(), gb = $("goalBox");
+  gb.classList.toggle("hidden", !G);
+  if (G) {
+    const pct = Math.max(0, Math.min(100, Math.round(m.net / G * 100)));
+    gb.classList.toggle("done", m.net >= G);
+    $("goalTxt").textContent = fill(t("goalTxt"), { g: rupees(G) }) + " · " + (m.net >= G ? t("goalDone") : fill(t("goalLeft"), { v: rupees(G - m.net) }));
+    $("goalPct").textContent = pct + "%";
+    requestAnimationFrame(() => { $("goalFill").style.width = pct + "%"; });
+  }
 
   // Online toggles
   const now = Date.now(), online = state.cap.online || {}, box = $("onlineBox");
@@ -1170,16 +1325,64 @@ async function toggleOnline(k) {
 }
 
 /* ---------- week ---------- */
-function renderWeek() {
-  const m = summarize(state.cap, state.entries, weekStart());
+let weekOff = 0, weekCache = {}, weekView = null;
+const fmtDay = ts => new Date(ts).toLocaleDateString(locale(), { day: "numeric", month: "short" });
+const goal = () => Number((state.cap.profile || {}).goal) || 0;
+/** Entries for a week: live data for this and last week, a one-off load (cached) for older weeks. */
+function weekEntries(off) {
+  const from = weekFrom(off);
+  if (from >= liveFrom()) return Promise.resolve(state.entries);
+  if (!weekCache[off]) weekCache[off] = store.loadRange(from, from + 7 * DAY).catch(e => { delete weekCache[off]; throw e; });
+  return weekCache[off];
+}
+
+async function renderWeek() {
+  const off = weekOff, from = weekFrom(off), end = from + 7 * DAY, now = Date.now(), to = Math.min(end, now);
+  $("weekTitle").textContent = off === 0 ? t("thisWeek") : off === -1 ? t("weekLast") : fill(t("weekOld"), { n: -off });
+  $("weekRange").textContent = `${fmtDay(from)} – ${fmtDay(end - DAY)}`;
+  $("weekNext").disabled = off >= 0;
+  let entries, prev;
+  if (from < liveFrom()) { $("wSub").textContent = t("loading"); $("wCompare").innerHTML = ""; }
+  try { [entries, prev] = await Promise.all([weekEntries(off), weekEntries(off - 1)]); }
+  catch (e) { console.error(e); toast(t("readFail")); return; }
+  if (off !== weekOff || current !== "scrWeek") return;          // the captain already moved on
+  const cap = off === 0 ? state.cap : { online: {} };              // open sessions only count this week
+  const m = summarize(cap, entries, from, to);
   $("wNet").textContent = rupees(m.net);
   $("wSub").innerHTML = "";
   const b = el("b", "", m.perHour === null ? `₹— ${t("perHr")}` : `${rupees(m.perHour)} ${t("perHr")}`);
-  $("wSub").append(b, document.createTextNode(` ${t("avg")} · ${(m.onlineMs / 3600e3).toFixed(1)} ${t("hoursOnline")}`));
-  const fmt = ts => new Date(ts).toLocaleDateString(locale(), { day: "numeric", month: "short" });
-  $("weekRange").textContent = `${fmt(weekStart())} – ${fmt(Date.now())}`;
+  $("wSub").append(b, document.createTextNode(` ${t("avg")} · ${(m.onlineMs / 3600e3).toFixed(1)} ${t("hoursOnline")} · ${m.trips} ${t("trips")}`));
 
-  const H = heatmap(state.cap, state.entries), grid = $("heat");
+  // Versus last week — for this week, only up to the same day and hour, so it's a fair race.
+  const cmp = $("wCompare"); cmp.innerHTML = "";
+  const pm = summarize({ online: {} }, prev, from - 7 * DAY, to - 7 * DAY);
+  if (pm.trips || pm.expenses) {
+    const d = Math.round(m.net - pm.net);
+    cmp.appendChild(el("div", d >= 0 ? "pill-g" : "pill-r", fill(t("vsLast"), { d: (d >= 0 ? "+" : "−") + "₹" + inr(Math.abs(d)) })));
+  }
+
+  // Day by day
+  const days = [], dbox = $("weekDays"); dbox.innerHTML = "";
+  for (let i = 0; i < 7; i++) {
+    const d0 = from + i * DAY; if (d0 > now) break;
+    days.push({ d0, s: summarize(cap, entries, d0, Math.min(d0 + DAY - 1, now)) });
+  }
+  const G = goal(), worked = days.filter(x => x.s.trips || x.s.onlineMs >= 15 * 60000);
+  const maxNet = Math.max(1, ...days.map(x => x.s.net));
+  const best = worked.length ? worked.reduce((a, x) => x.s.net > a.s.net ? x : a) : null;
+  $("byDayHint").textContent = G && worked.length ? fill(t("goalDays"), { n: worked.filter(x => x.s.net >= G).length, m: worked.length })
+    : best ? fill(t("bestDay"), { d: new Date(best.d0).toLocaleDateString(locale(), { weekday: "short" }) }) : "";
+  [...days].reverse().forEach(({ d0, s: x }, i) => {
+    const row = el("div", "dayrow" + (d0 === dayStart() ? " today" : "") + (G && x.net >= G ? " goalmet" : "")), dn = el("div", "dn");
+    dn.append(el("b", "", new Date(d0).toLocaleDateString(locale(), { weekday: "short", day: "numeric" })),
+      el("span", "", x.trips || x.onlineMs ? `${x.trips} ${t("trips")} · ${x.onlineMs >= 3600e3 ? (x.onlineMs / 3600e3).toFixed(1) + t("hShort") : dur(x.onlineMs)}` : t("dayOff")));
+    const bar = el("div", "bar"), f = el("i", best && d0 === best.d0 ? "top" : "");
+    f.style.width = (x.net > 0 ? Math.max(4, x.net / maxNet * 100) : 0) + "%"; f.style.animationDelay = (i * 0.06) + "s"; bar.appendChild(f);
+    const dv = el("div", "dv"); dv.append(el("b", "", x.trips || x.expenses ? rupees(x.net) : "—"), el("span", "", x.perHour === null ? "" : `${rupees(x.perHour)} ${t("perHr")}`));
+    row.append(dn, bar, dv); dbox.appendChild(row);
+  });
+
+  const H = heatmap(cap, entries, from), grid = $("heat");
   grid.innerHTML = "";
   grid.appendChild(el("div"));
   SLOTS.forEach(([a, b]) => grid.appendChild(el("div", "", `${a > 12 ? a - 12 : a}–${b > 12 ? b - 12 : b}`)));
@@ -1202,6 +1405,8 @@ function renderWeek() {
     $("tipText").textContent = s;
   } else $("tipText").textContent = t("noTip");
 
+  weekView = { from, end, m, best };
+
   // By app
   const wa = $("weekApps"); wa.innerHTML = "";
   const rows = Object.entries(m.perApp).map(([k, p]) => ({ k, p, v: p.ms >= 15 * 60000 ? p.fares / (p.ms / 3600e3) : null }))
@@ -1218,7 +1423,23 @@ function renderWeek() {
   });
   wa.appendChild(wrap);
 }
-$("goWeek").onclick = () => { show("scrWeek"); renderWeek(); };
+function openWeek(off = 0) { weekOff = Math.min(0, off); show("scrWeek"); renderWeek(); }
+$("goWeek").onclick = () => openWeek(0);
+$("weekPrev").onclick = () => { weekOff--; renderWeek(); };
+$("weekNext").onclick = () => { if (weekOff < 0) { weekOff++; renderWeek(); } };
+$("weekShare").onclick = async () => {
+  if (!weekView) return;
+  const { from, end, m, best } = weekView;
+  const lines = [
+    fill(t("shareHead"), { r: `${fmtDay(from)} – ${fmtDay(end - DAY)}` }),
+    fill(t("shareNet"), { v: rupees(m.net) }),
+    fill(t("shareRate"), { v: m.perHour === null ? "₹—" : rupees(m.perHour), h: (m.onlineMs / 3600e3).toFixed(1), t: m.trips }),
+    best ? fill(t("bestDay"), { d: new Date(best.d0).toLocaleDateString(locale(), { weekday: "long" }) }) : null,
+    "", t("shareFoot")
+  ].filter(x => x !== null).join("\n");
+  try { if (navigator.share) { await navigator.share({ text: lines }); return; } } catch (e) { if (e && e.name === "AbortError") return; }
+  location.href = "https://wa.me/?text=" + encodeURIComponent(lines);
+};
 $("weekBack").onclick = () => { show("scrMain"); render._lastNet = null; shownNet = 0; render(); };
 
 /* ---------- sheets ---------- */
@@ -1467,7 +1688,11 @@ $("impSave").onclick = async () => {
     $("doneTripP").textContent = `${appName(app)} · ${money2(list.reduce((s, x) => s + x.amount, 0))}`;
     flash("doneTrip", 2000);
     // Earlier days don't show on today's screen — open the weekly report instead.
-    if (list.every(x => tsOf(x.date, x.time) < dayStart())) setTimeout(() => { show("scrWeek"); renderWeek(); }, 2000);
+    weekCache = {};
+    if (list.every(x => tsOf(x.date, x.time) < dayStart())) {
+      const off = Math.round((mondayOf(tsOf(list[0].date, list[0].time)) - weekFrom(0)) / (7 * DAY));
+      setTimeout(() => openWeek(off), 2000);
+    }
   } catch (e) { console.error(e); $("impErr").textContent = t("errSave"); }
   $("impSave").disabled = false;
 };
@@ -1554,11 +1779,15 @@ async function seal(blob, head) {
 /* report windows that must keep their video (from reports filed on this phone) */
 const kvHolds = () => LS.get("gl_kv_holds", []).filter(h => h.to > Date.now() - KV.MAX_AGE_MS);
 const kvCovered = (a, b) => kvHolds().some(h => b >= h.from && a <= h.to);
-async function kvHold(from, to) { LS.set("gl_kv_holds", [...kvHolds(), { from, to }]); const n = await kvDB.queueWindow(from, to); kvPump(); return n; }
+async function kvHold(from, to) { if (NATIVE) { NATIVE.hold(from, to); return 0; } LS.set("gl_kv_holds", [...kvHolds(), { from, to }]); const n = await kvDB.queueWindow(from, to); kvPump(); return n; }
 
 function kvStat(bytes) { const d = new Date().toDateString(), s = LS.get("gl_kv_stat", {}); LS.set("gl_kv_stat", { day: d, bytes: (s.day === d ? s.bytes : 0) + bytes }); }
 const kvMB = () => { const s = LS.get("gl_kv_stat", {}); return s.day === new Date().toDateString() ? (s.bytes / 1048576).toFixed(1) : "0.0"; };
 const kvVideoOn = () => LS.get("gl_kv_video", true);
+const kvFacing = () => LS.get("gl_kv_facing", "front");   // "front" sees the captain and rider, "back" sees the road
+/** Android app bridge. When Galla runs inside the Galla Android app, recording is done by a native
+    background service (keeps going while Rapido is open); this page only starts, stops and shows it. */
+const NATIVE = window.GallaNative && typeof window.GallaNative.start === "function" ? window.GallaNative : null;
 const kvContacts = () => LS.get("gl_kv_contacts", []);
 const kvConsented = () => !!(LS.get("gl_kv_ok") || (state.cap.profile || {}).kavachOk);
 const pickMime = list => list.find(m => MediaRecorder.isTypeSupported(m)) || "";
@@ -1624,8 +1853,26 @@ async function kvRefresh() { try { kv.metas = await kvDB.metas(); } catch { kv.m
 
 async function kvWake() { try { if ("wakeLock" in navigator && !document.hidden) kv.wake = await navigator.wakeLock.request("screen"); } catch {} }
 
+function kvNativeConfig() {
+  return { cid, lang, video: kvVideoOn(), facing: kvFacing(), demo: DEMO, publicKey: KAVACH_PUBLIC_KEY,
+    auth: !DEMO && store && store.authInfo ? store.authInfo() : null,
+    text: { title: t("kvTitle"), recording: t("kvRecording"), stop: t("kvStop"), sos: "SOS" } };
+}
+function kvNativePoll() {
+  let st; try { st = JSON.parse(NATIVE.status()); } catch { return; }
+  const changed = st.on !== kv.on;
+  kv.on = !!st.on; kv.startedAt = st.startedAt || 0; kv.native = st;
+  if (changed || current === "scrKavach") kvRender(); else kvLinkRender();
+}
 async function kvStart() {
   if (kv.on || kv.busy) return kv.on;
+  if (NATIVE) {
+    if (!DEMO && !KAVACH_PUBLIC_KEY) { toast(t("kvNotSetup")); return false; }
+    const r = String(NATIVE.start(JSON.stringify(kvNativeConfig())));   // native asks for any missing permission itself
+    if (r.startsWith("error")) { toast(t("kvPerm")); return false; }
+    setTimeout(kvNativePoll, 700); setTimeout(kvNativePoll, 2500);
+    return true;
+  }
   if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !(window.crypto && crypto.subtle) || !window.indexedDB) { toast(t(window.top !== window.self ? "kvEmbedded" : "kvNoSupport")); return false; }
   kv.busy = true; kvRender();
   try {
@@ -1636,7 +1883,7 @@ async function kvStart() {
     const audio = { echoCancellation: false, noiseSuppression: true, autoGainControl: true };
     let stream = null, camFail = false;
     if (kvVideoOn()) {
-      try { stream = await navigator.mediaDevices.getUserMedia({ audio, video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 20 } } }); }
+      try { stream = await navigator.mediaDevices.getUserMedia({ audio, video: { facingMode: kvFacing() === "back" ? "environment" : "user", width: { ideal: 640 }, height: { ideal: 480 }, frameRate: { ideal: 15, max: 20 } } }); }
       catch (e) { camFail = true; }
     }
     if (!stream) {
@@ -1651,7 +1898,7 @@ async function kvStart() {
     if (stream.getVideoTracks().length) kv.recs.push(segRecorder(stream, "video", { mimeType: vMime, videoBitsPerSecond: KV.VIDEO_BPS, audioBitsPerSecond: KV.AUDIO_BPS }));
     stream.getTracks().forEach(tr => tr.addEventListener("ended", () => { if (kv.on && kv.stream === stream && !document.hidden) kvRestart(); }));
     kv.on = true; kv.startedAt = Date.now(); LS.set("gl_kv_on", true);
-    if (stream.getVideoTracks().length) { const pv = $("kvPreview"); pv.srcObject = stream; pv.play().catch(() => {}); }
+    if (stream.getVideoTracks().length) { const pv = $("kvPreview"); pv.srcObject = stream; pv.style.transform = kvFacing() === "back" ? "none" : "scaleX(-1)"; pv.play().catch(() => {}); }
     if (navigator.geolocation) kv.watchId = navigator.geolocation.watchPosition(
       p => { kv.pos = { lat: +p.coords.latitude.toFixed(5), lng: +p.coords.longitude.toFixed(5), acc: Math.round(p.coords.accuracy), t: Date.now() }; },
       () => {}, { enableHighAccuracy: true, maximumAge: 30000, timeout: 30000 });
@@ -1663,6 +1910,7 @@ async function kvStart() {
 }
 
 function kvStop(restarting = false) {
+  if (NATIVE) { NATIVE.stop(); setTimeout(kvNativePoll, 700); return; }
   if (!kv.on) return;
   kv.recs.forEach(r => r.stop()); kv.recs = [];
   const s = kv.stream; kv.stream = null;
@@ -1675,7 +1923,10 @@ function kvStop(restarting = false) {
   $("kvPreview").srcObject = null;
   kvRender();
 }
-async function kvRestart() { kvStop(true); await new Promise(r => setTimeout(r, 600)); await kvStart(); }
+async function kvRestart() {
+  if (NATIVE) { NATIVE.stop(); await new Promise(r => setTimeout(r, 1200)); kv.on = false; await kvStart(); return; }
+  kvStop(true); await new Promise(r => setTimeout(r, 600)); await kvStart();
+}
 
 document.addEventListener("visibilitychange", () => {
   if (!kv.on) return;
@@ -1708,26 +1959,33 @@ function kvRender() {
   else { const ic = el("span"); ic.innerHTML = SHIELD("#FFC629", 52); b.append(ic, el("span", "", t("kvStart"))); }
   b.setAttribute("aria-pressed", kv.on ? "true" : "false");
   $("kvCam").classList.toggle("hidden", !(kv.on && kv.stream && kv.stream.getVideoTracks().length));
-  $("kvState").textContent = kv.on ? t("kvOnState") : t(kvVideoOn() ? "kvOffState" : "kvOffStateA");
-  $("kvKeepOpen").classList.toggle("hidden", !kv.on);
+  $("kvState").textContent = kv.on ? t(NATIVE ? "kvNativeBg" : "kvOnState") : t(kvVideoOn() ? "kvOffState" : "kvOffStateA");
+  $("kvKeepOpen").classList.toggle("hidden", !kv.on || !!NATIVE);
   const bb = $("kvBanner"); bb.innerHTML = ""; if (DEMO) bb.appendChild(el("div", "banner demo", t("kvDemo")));
 
-  const ms = kv.metas;
-  const qa = ms.filter(m => m.kind === "audio" && m.state === "queued").length;
-  const qv = ms.filter(m => m.kind === "video" && m.state === "queued").length;
-  const lv = ms.filter(m => m.kind === "video" && m.state === "local").reduce((s, m) => s + (m.end - m.start), 0);
+  // Numbers come from the Android recorder when present, otherwise from this page's own storage.
+  const ms = kv.metas, nst = NATIVE ? (kv.native || {}) : null;
+  const qa = nst ? nst.queuedAudio || 0 : ms.filter(m => m.kind === "audio" && m.state === "queued").length;
+  const qv = nst ? nst.queuedVideo || 0 : ms.filter(m => m.kind === "video" && m.state === "queued").length;
+  const lv = nst ? nst.localVideoMs || 0 : ms.filter(m => m.kind === "video" && m.state === "local").reduce((s, m) => s + (m.end - m.start), 0);
+  const mb = nst ? ((nst.bytesToday || 0) / 1048576).toFixed(1) : kvMB(), gpsOk = nst ? nst.gps !== false : !!kv.pos;
   const rows = $("kvRows"); rows.innerHTML = "";
   const row = (icon, title, sub) => {
     const r = el("div", "kvrow"), ic = el("div", "ic"), tx = el("div", "tx");
     ic.innerHTML = icon; tx.append(el("b", "", title)); if (sub) tx.append(el("span", "", sub));
     r.append(ic, tx); rows.appendChild(r);
   };
-  row(ICON.mic, t("kvAudioOk"), qa ? fill(t("kvAudioWait"), { n: qa }) : fill(t("kvAudioOkS"), { mb: kvMB() }));
+  row(ICON.mic, t("kvAudioOk"), qa ? fill(t("kvAudioWait"), { n: qa }) : fill(t("kvAudioOkS"), { mb }));
   row(ICON.cam, kvVideoOn() || lv || qv ? t("kvVideoOk") : t("kvVideoOff"), qv ? fill(t("kvVideoSend"), { n: qv }) : (kvVideoOn() || lv ? fill(t("kvVideoOkS"), { m: Math.round(lv / 60000) }) : ""));
-  row(ICON.pin, kv.on && !kv.pos ? t("kvGpsNo") : t("kvGpsOk"), t("kvSealS"));
+  row(ICON.pin, kv.on && !gpsOk ? t("kvGpsNo") : t("kvGpsOk"), t("kvSealS"));
 
   const vb = $("kvVideoBtn"); vb.textContent = t(kvVideoOn() ? "kvOn" : "kvOff"); vb.className = "chip" + (kvVideoOn() ? " on" : "");
   vb.setAttribute("aria-pressed", kvVideoOn() ? "true" : "false");
+  [["kvCamFront", "front"], ["kvCamBack", "back"]].forEach(([id, side]) => {
+    const c = $(id), on = kvFacing() === side;
+    c.className = "chip" + (on ? " yon" : ""); c.disabled = !kvVideoOn(); c.style.opacity = kvVideoOn() ? "" : ".45";
+    c.setAttribute("aria-pressed", on ? "true" : "false");
+  });
   const cs = kvContacts(); $("kvContactsTxt").textContent = cs.length ? cs.join(", ") : t("kvContactsNone");
 
   const ul = $("kvRepList"); ul.innerHTML = "";
@@ -1755,6 +2013,9 @@ $("kvAgree").onclick = async () => {
   closeSheets(); await kvStart();
 };
 $("kvVideoBtn").onclick = () => { LS.set("gl_kv_video", !kvVideoOn()); if (kv.on) kvRestart(); else kvRender(); };
+function setFacing(side) { if (kvFacing() === side) return; LS.set("gl_kv_facing", side); if (kv.on && kvVideoOn()) kvRestart(); else kvRender(); }
+$("kvCamFront").onclick = () => setFacing("front");
+$("kvCamBack").onclick = () => setFacing("back");
 
 /* contacts */
 const normPhone = s => { const d = String(s).replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, ""); return /^[6-9]\d{9}$/.test(d) ? d : null; };
@@ -1842,36 +2103,93 @@ $("kvSosBtn").onclick = async () => {
   kvSmsLink(p);
 };
 
-/* ---------- setup ---------- */
-function renderSetup() {
-  const lb = $("setLang"); lb.innerHTML = "";
+/* ---------- shared pickers (setup and settings use the same ones) ---------- */
+function langChips(box, onPick) {
+  box.innerHTML = "";
   LANGS.forEach(([k, n]) => {
-    const b = el("button", "chip" + (lang === k ? " on" : ""), n); b.type = "button";
-    b.onclick = () => { lang = k; LS.set("gl_lang", k); applyLang(); }; lb.appendChild(b);
+    const b = el("button", "chip" + (lang === k ? " on" : ""), n); b.type = "button"; b.setAttribute("aria-pressed", lang === k ? "true" : "false");
+    b.onclick = () => { lang = k; LS.set("gl_lang", k); if (onPick) onPick(k); applyLang(); }; box.appendChild(b);
   });
-  const vb = $("setVeh"); vb.innerHTML = "";
+}
+function vehCards(box, selected, onPick) {
+  box.innerHTML = "";
   VEHICLES.forEach(v => {
-    const sel = setupDraft.vehicle === v.k, b = el("button", "veh" + (sel ? " sel" : ""));
+    const sel = selected === v.k, b = el("button", "veh" + (sel ? " sel" : ""));
     b.type = "button"; b.setAttribute("aria-pressed", sel ? "true" : "false");
     const img = el("img"); img.src = v.img; img.alt = ""; img.width = 96; img.height = 96;
     b.append(img, el("span", "", (sel ? "✓ " : "") + t(v.k)));
-    b.onclick = () => { setupDraft.vehicle = v.k; $("setErr").textContent = ""; renderSetup(); }; vb.appendChild(b);
+    b.onclick = () => onPick(v.k); box.appendChild(b);
   });
-  const ab = $("setApps"); ab.innerHTML = "";
+}
+function appChips(box, selected, onToggle) {
+  box.innerHTML = "";
   APPS.forEach(a => {
-    const sel = setupDraft.apps.includes(a.k), b = el("button", "chip" + (sel ? " on" : ""), (sel ? "✓ " : "") + appName(a.k));
+    const sel = selected.includes(a.k), b = el("button", "chip" + (sel ? " on" : ""), (sel ? "✓ " : "") + appName(a.k));
     b.type = "button"; b.setAttribute("aria-pressed", sel ? "true" : "false");
-    b.onclick = () => { setupDraft.apps = sel ? setupDraft.apps.filter(x => x !== a.k) : [...setupDraft.apps, a.k]; $("setErr").textContent = ""; renderSetup(); };
-    ab.appendChild(b);
+    b.onclick = () => onToggle(a.k, sel); box.appendChild(b);
   });
+}
+
+/* ---------- setup (first open) ---------- */
+function renderSetup() {
+  langChips($("setLang"));
+  vehCards($("setVeh"), setupDraft.vehicle, k => { setupDraft.vehicle = k; $("setErr").textContent = ""; renderSetup(); });
+  appChips($("setApps"), setupDraft.apps, (k, sel) => { setupDraft.apps = sel ? setupDraft.apps.filter(x => x !== k) : [...setupDraft.apps, k]; $("setErr").textContent = ""; renderSetup(); });
 }
 $("setSave").onclick = async () => {
   if (!setupDraft.vehicle) { $("setErr").textContent = t("pickVehicle"); return; }
   if (!setupDraft.apps.length) { $("setErr").textContent = t("pickApps"); return; }
-  await store.setProfile({ vehicle: setupDraft.vehicle, apps: setupDraft.apps, lang });
+  await store.setProfile({ ...(state.cap.profile || {}), vehicle: setupDraft.vehicle, apps: setupDraft.apps, lang });
   show("scrMain"); render._lastNet = null; shownNet = 0; render();
 };
-$("editSetup").onclick = () => { const p = state.cap.profile || {}; setupDraft = { vehicle: p.vehicle || null, apps: [...(p.apps || [])] }; show("scrSetup"); renderSetup(); };
+
+/* ---------- settings (any time later) ---------- */
+const GOALS = [0, 800, 1000, 1200, 1500, 2000, 2500, 3000];
+function saveProfile(patch) {
+  const p = { ...(state.cap.profile || {}), ...patch };
+  state.cap.profile = p;
+  store.setProfile(p).catch(() => toast(t("errSave")));
+}
+function renderSettings() {
+  const p = state.cap.profile || {}, apps = p.apps && p.apps.length ? p.apps : [];
+  langChips($("stLang"), k => saveProfile({ lang: k }));
+  vehCards($("stVeh"), p.vehicle, k => { saveProfile({ vehicle: k }); toast(t("saved")); renderSettings(); });
+  appChips($("stApps"), apps, (k, sel) => {
+    if (sel && apps.length === 1) { $("stErr").textContent = t("lastApp"); return; }
+    $("stErr").textContent = "";
+    saveProfile({ apps: sel ? apps.filter(x => x !== k) : [...apps, k] }); renderSettings();
+  });
+  const G = goal(), gb = $("stGoal"); gb.innerHTML = "";
+  GOALS.forEach(v => {
+    const on = G === v, b = el("button", "chip" + (on ? " yon" : ""), v ? "₹" + inr(v) : t("goalOff"));
+    b.type = "button"; b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.onclick = () => { saveProfile({ goal: v }); $("stGoalIn").value = ""; toast(t("saved")); renderSettings(); };
+    gb.appendChild(b);
+  });
+  const gi = $("stGoalIn"); if (document.activeElement !== gi) gi.value = G && !GOALS.includes(G) ? G : "";
+  $("stKvIc").innerHTML = kv.on ? "" : SHIELD("#FFC629", 30); if (kv.on) $("stKvIc").appendChild(el("span", "recdot")); $("stKvIc").style.display = "flex";
+  $("stNativeCard").classList.toggle("hidden", !NATIVE);
+  const rb = $("stRemind"), ron = LS.get("gl_remind", false);
+  rb.textContent = t(ron ? "kvOn" : "kvOff"); rb.className = "chip" + (ron ? " on" : ""); rb.setAttribute("aria-pressed", ron ? "true" : "false");
+  $("stCode").textContent = cid;
+  $("stSupportRow").classList.toggle("hidden", !SUPPORT_PHONE);
+  $("stSupport").textContent = SUPPORT_PHONE;
+}
+$("stGoalIn").onchange = e => {
+  const v = Math.round(Number(e.target.value) || 0);
+  if (v < 0 || v > 20000) { toast(t("enterAmt")); return; }
+  saveProfile({ goal: v }); toast(t("saved")); renderSettings();
+};
+$("stRemind").onclick = () => {
+  const on = !LS.get("gl_remind", false); LS.set("gl_remind", on);
+  if (NATIVE && NATIVE.setReminder) NATIVE.setReminder(on, "Galla", t("remindBody"));
+  renderSettings();
+};
+$("stKavach").onclick = () => { show("scrKavach"); kvRefresh(); };
+function openSettings() { $("stErr").textContent = ""; show("scrSettings"); renderSettings(); }
+$("goSettings").onclick = openSettings;
+$("editSetup").onclick = openSettings;
+$("setBack").onclick = () => { show("scrMain"); render._lastNet = null; shownNet = 0; render(); };
 
 /* ---------- language, network, day change ---------- */
 $("langSel").onchange = e => { lang = e.target.value; LS.set("gl_lang", lang); applyLang(); };
@@ -1883,6 +2201,22 @@ window.addEventListener("online", () => kvPump());
 setInterval(() => { kvPump(); }, 30000);
 setInterval(() => { kvClean().then(kvRefresh).catch(() => {}); }, 5 * 60000);
 setInterval(() => { if (current === "scrMain") render(); }, 30000);
+
+/* ---------- Android app hooks ---------- */
+// The Android back button: close a sheet, else go back to the home screen; false lets the app close.
+window.gallaBack = () => {
+  if (document.querySelector(".sheet.open")) { closeSheets(); return true; }
+  if (["scrWeek", "scrKavach", "scrSettings"].includes(current)) { show("scrMain"); render._lastNet = null; shownNet = 0; render(); return true; }
+  return false;
+};
+// "SOS" on the recording notification opens this.
+window.gallaNativeSOS = () => { show("scrKavach"); kvRefresh(); $("kvSosBtn").click(); };
+if (NATIVE) {
+  setInterval(kvNativePoll, 2000);
+  // Hand the recorder a fresh sign-in now and then, so its uploads count as this captain's.
+  const pushAuth = () => { if (!DEMO && store && store.authInfo && NATIVE.setAuth) { const a = store.authInfo(); if (a.refreshToken) NATIVE.setAuth(JSON.stringify(a)); } };
+  setTimeout(pushAuth, 4000); setInterval(pushAuth, 30 * 60000);
+}
 
 /* ---------- offline app shell ---------- */
 if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
@@ -1913,7 +2247,8 @@ if ("serviceWorker" in navigator && location.protocol === "https:") navigator.se
       if (!p) { setupDraft = { vehicle: null, apps: [] }; show("scrSetup"); renderSetup(); return; }
       show("scrMain");
       // Was recording when the page closed or reloaded: pick up again (works once camera/mic permission is granted).
-      if (LS.get("gl_kv_on") && kvConsented()) kvStart();
+      // In the Android app the recorder is a separate service that keeps running by itself.
+      if (!NATIVE && LS.get("gl_kv_on") && kvConsented()) kvStart();
     }
     render();
   });
